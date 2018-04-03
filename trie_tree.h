@@ -4,6 +4,8 @@
 #include <iostream>
 #include <vector>
 #include <unordered_map>
+#include <deque>
+
 using namespace std;
 
 typedef struct ChildNode{
@@ -20,11 +22,12 @@ class TrieTree{
     public:
     TrieTree(){
         proot = new Node();
+        vocab["end"] = 1;
     }
     Node* proot;
-    int node_nums=0;
-    public:
-    void add_words(vector<string> &word, bool);
+    int node_nums=1;
+    unordered_map <string, int> vocab;
+    void add_words(deque<string> &word, bool);
     void add_word(string word, bool=false);
 };
 #endif

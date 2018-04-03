@@ -2,6 +2,11 @@
     "files.associations": {
         "exception": "cpp",
         "array": "cpp",
-        "string_view": "cpp"
+        "string_view": "cpp",
+        "*.ipp": "cpp",
+        "initializer_list": "cpp",
+        "valarray": "cpp",
+        "ostream": "cpp",
+        "utility": "cpp"
     }
 }

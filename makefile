@@ -9,7 +9,7 @@ utils.o:utils.h
 
 .PHONY: clean
 clean:
-	rm edit $(objects)
+	rm $(objects)
 
 CPP=g++
 CPPFLAGS=-std=c++11

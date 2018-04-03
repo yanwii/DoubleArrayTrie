@@ -2,7 +2,7 @@
 #define TTA_UTILS
 
 #include <iostream>
-#include <vector>
+#include <deque>
 using namespace std;
 
 deque<string> cut(const string &word, bool);

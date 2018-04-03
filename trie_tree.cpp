@@ -9,7 +9,7 @@
 using namespace std;
 
 
-void TrieTree::add_words(vector<string> &words, bool if_reverse=false){
+void TrieTree::add_words(deque<string> &words, bool if_reverse=false){
     /*
     Add words to Trie Tree
 
@@ -19,10 +19,11 @@ void TrieTree::add_words(vector<string> &words, bool if_reverse=false){
         if_reverse:  bool
                      if reverse the segment
     */
-    vector<string> seg;
-    for (int i=0; i < words.size(); i++){
+    while(!words.empty()){
+        string word = words.back();
+        words.pop_back();
         try{
-            add_word(words[i], if_reverse);
+            add_word(word, if_reverse);
         } catch (exception &e){
             continue;
         }
@@ -55,7 +56,12 @@ void TrieTree::add_word(string word, bool if_reverse){
             if (root->child[word]==NULL){
                 // if not exist
                 // add new node
-                node_nums++;
+                if (vocab[word] != 0){
+                    node_nums = vocab[word];
+                } else {
+                    node_nums++;
+                    vocab[word] = node_nums;
+                }
                 root->child[word] = new Node();
                 root->child[word]->word = word;
                 root->child[word]->state = node_nums;
@@ -66,10 +72,10 @@ void TrieTree::add_word(string word, bool if_reverse){
         }
         root->is_end = true;
         root->segment = tmp;
-        root->child[""] = new Node();
-        root->child[""]->word = "end";
-        root->child[""]->state = ++node_nums;
-        root->child[""]->depth = words.size() + 1;
+        root->child["end"] = new Node();
+        root->child["end"]->word = "end";
+        root->child["end"]->state = 1;
+        root->child["end"]->depth = words.size() + 1;
     } catch (exception &e){}
 };
 
