@@ -22,10 +22,17 @@ class TrieTree{
     public:
     TrieTree(){
         proot = new Node();
-        vocab["end"] = 1;
+        proot->word = "end";
+        vocab["end"] = 1000;
+        vocab["走"] = 36208;
+        vocab["树"] = 26641;
+        vocab["茶"] = 33590;
+        vocab["叶"] = 21494;
+        vocab["廊"] = 24266;
     }
+
     Node* proot;
-    int node_nums=1;
+    int node_nums = 1000;
     unordered_map <string, int> vocab;
     void add_words(deque<string> &word, bool);
     void add_word(string word, bool=false);

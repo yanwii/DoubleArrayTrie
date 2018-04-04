@@ -56,15 +56,13 @@ void TrieTree::add_word(string word, bool if_reverse){
             if (root->child[word]==NULL){
                 // if not exist
                 // add new node
-                if (vocab[word] != 0){
-                    node_nums = vocab[word];
-                } else {
+                if (vocab.find(word) == vocab.end()){
                     node_nums++;
                     vocab[word] = node_nums;
                 }
                 root->child[word] = new Node();
                 root->child[word]->word = word;
-                root->child[word]->state = node_nums;
+                root->child[word]->state = vocab[word];
                 root->child[word]->depth = i+1;
             };
             // goto child node
