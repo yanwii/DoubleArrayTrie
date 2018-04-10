@@ -72,7 +72,7 @@ void TrieTree::add_word(string word, bool if_reverse){
         root->segment = tmp;
         root->child["end"] = new Node();
         root->child["end"]->word = "end";
-        root->child["end"]->state = 1;
+        root->child["end"]->state = 0;
         root->child["end"]->depth = words.size() + 1;
     } catch (exception &e){}
 };
