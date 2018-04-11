@@ -4,33 +4,43 @@
 #include <iostream>
 #include <unordered_map>
 #include <deque>
-#include "trie_tree.h"
 using namespace std;
 
-typedef unordered_map<string, deque<string>> sibling_map_def;
+
+typedef struct Siblings{
+    bool is_end = false;
+    bool is_begin = false;
+    int parent_state;
+    int code;
+    string parent_word;
+    string word;
+} Node;
+
+typedef deque<Node> siblings_def;
 typedef deque<deque<string>> cut_seg_def;
 
-class DoubleArrayTrie:TrieTree{
+class DoubleArrayTrie{
     public:
     DoubleArrayTrie(){};
     void make_ac(deque<string>);
-    bool find_begin(deque<string>, int);
+    int find_begin(string word, int);
     void prefix_search(string);
     void loop_map(unordered_map<string, int>);
     void init_storage();
     void reallocate_storage(int);
+    int get_parent_state(string);
+    void print();
     cut_seg_def cut_seg(const deque<string> &);
-    sibling_map_def count_siblings(int, cut_seg_def);
-    void clear_map(int);
+    siblings_def count_siblings(int, cut_seg_def);
     // int base[100] = {0};
     // int check[100] = {0};
-    vector<int> base;
-    vector<int> check;
+    deque<int> base;
+    deque<int> check;
+    vector<string> charl;
 
     int next_check_pos = 0;
     int nums_word = 0;
     int alloc_size = 1;
     unordered_map<string, int> vocab;
-    unordered_map<int, unordered_map<string, int>> pre_state;
 };
 #endif

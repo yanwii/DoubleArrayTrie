@@ -8,6 +8,9 @@
         "valarray": "cpp",
         "ostream": "cpp",
         "utility": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "cmath": "cpp",
+        "complex": "cpp",
+        "cstdlib": "cpp"
     }
 }

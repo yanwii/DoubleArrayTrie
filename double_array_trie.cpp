@@ -1,10 +1,10 @@
 #include <iostream>
 #include <vector>
 #include <deque>
-#include "trie_tree.h"
 #include "double_array_trie.h"
 #include "utils.h"
 #include <math.h>
+#include <time.h>
 #include <deque>
 using namespace std;
 
@@ -29,8 +29,9 @@ void DoubleArrayTrie::reallocate_storage(int new_size){
 }
 
 void DoubleArrayTrie::init_storage(){
-    base = vector<int> (alloc_size);
-    check = vector<int> (alloc_size);
+    base = deque<int> (alloc_size);
+    check = deque<int> (alloc_size);
+    charl = vector<string> (100, " ");
 }
 
 void DoubleArrayTrie::make_ac(deque<string> list){
@@ -42,30 +43,40 @@ void DoubleArrayTrie::make_ac(deque<string> list){
 
     int col = 0;
     int max_col = 20;
-    sibling_map_def siblings;
+    siblings_def siblings;
     while (true){
         // Loop the segments then adding word to vocab while 
         // constructing the base & check.
-        if (col == 0) { count_siblings(col, segments); col++; continue;}
         siblings = count_siblings(col, segments);
+        
         if (siblings.empty()) { break; }
+        int t;
+        int s;
         // Find begin first
-        for (auto it=siblings.begin(); it!=siblings.end(); it++){
-            string pre_word = it->first;
-            deque<string> seg = it->second;
-            int begin = find_begin(seg, 1);
-            // base & check
-            int s = pre_state[col-1][pre_word];
-
-            for (string word : seg){
-                int t = vocab[word] + begin;
-                if (t >= alloc_size) { reallocate_storage(t); }
-                check[t] = s;
-                pre_state[col][word] = t;
+        while (!siblings.empty()){
+            Node sibling = siblings.front();
+            siblings.pop_front();
+            string word = sibling.word;
+            int begin = find_begin(word, 1);
+            cout << "col " << col << " " << word << endl;
+            cout << sibling.parent_word + word << " " << begin << endl;
+            if (sibling.is_begin){
+                t = vocab[word];
+                check[t] = 1;
+                charl[t] = word;
+                print();
+                continue;
             }
+
+            s = get_parent_state(sibling.parent_word);
+            t = vocab[word] + begin;
+            cout << "s: " << s << endl;
+            if (t >= alloc_size) { reallocate_storage(t); }
+            check[t] = s;
+            charl[t] = word;
             base[s] = begin;
+            print();
         }
-        clear_map(col);
         col ++;
     }
     // perfct list base
@@ -85,60 +96,84 @@ void DoubleArrayTrie::make_ac(deque<string> list){
             if (i == seg.size()-1 && bp > 0) { base[p] = -base[p];}
         }
     }
+    loop_map(vocab);
+    print();
     cout << base.size() << endl;
 }
 
-void DoubleArrayTrie::clear_map(int col){
-    pre_state.erase(col-1);
+void DoubleArrayTrie::print(){
+    for (int i=0; i<20 ; i++){
+        cout << i;
+        cout << " ";
+        cout << base[i];
+        cout << " ";
+        cout << check[i];
+        cout << " ";
+        cout << charl[i] << endl;
+    }
+    cout << "-------------" << endl;
 }
 
-sibling_map_def DoubleArrayTrie::count_siblings(int col, cut_seg_def segments){
-    sibling_map_def siblings;
+int DoubleArrayTrie::get_parent_state(string seg){
+    int s = 0; 
+    int p = 0;
+    for (auto word: cut(seg, false)){
+        s = base[p] + vocab[word];
+    }
+    return s;
+}
+
+siblings_def DoubleArrayTrie::count_siblings(int col, cut_seg_def segments){
+    siblings_def siblings;
+    unordered_map<string, int> dup;
     for (deque<string> seg : segments) { 
         if (col >= seg.size()) { continue;}
         string cur_word = seg[col];
         // if col equals 0
         //    init pre_state & charl 
-        if (col == 0) { 
-            vocab[cur_word] = vocab[cur_word] == 0 ? ++nums_word : vocab[cur_word]; 
-            pre_state[col][cur_word] = vocab[cur_word];
-            continue; 
-        }
-        string pre_word = seg[col-1];
-        // add to vocab
-        if (vocab[cur_word] == 0){
-            nums_word ++;
-            vocab[cur_word] = nums_word;
-        }
-        // collect sibling
-        siblings[pre_word].push_back(seg[col]);
+        Node sibling;
+        vocab[cur_word] = vocab[cur_word] == 0 ? ++nums_word : vocab[cur_word]; 
+        string parent_key = col == 0 ? "_" + cur_word : seg[col-1] + "_" + cur_word;
+        if (dup[parent_key] != 0) { continue; } 
+        dup[parent_key] = 1;
+        sibling.code = vocab[cur_word];
+        sibling.word = cur_word;
+        sibling.is_begin = col == 0 ? true : false;
+        string parent_seg = "";
+        for (int i=0; i<col; i++) { parent_seg += seg[i];}
+        sibling.parent_word = parent_seg;
+        siblings.push_back(sibling);
     }
     return siblings;
 }
 
-bool DoubleArrayTrie::find_begin(deque<string> seg, int begin){
-    for (string word : seg) {
-        if ( vocab[word] + begin >= alloc_size) { reallocate_storage(vocab[word] + begin); }
-        if (base[vocab[word] + begin]!=0 || check[vocab[word] + begin]!=0){
-            return find_begin(seg, ++begin);
-        }
+int DoubleArrayTrie::find_begin(string word, int begin){
+    if (base[vocab[word] + begin]!=0 || check[vocab[word] + begin]!=0){
+        return find_begin(word, ++begin);
     }
     return begin;
 }
 
 void DoubleArrayTrie::prefix_search(string to_search){
     deque<string> to_searchl = cut(to_search, false);
-    int p = 0;
-    string result = "";
+    string word = to_searchl.front();
+    to_searchl.pop_front();
+    int p = vocab[word];
+    int b = 0;
+    string result = word;
     while(!to_searchl.empty()){
-        string word = to_searchl.front();
+        word = to_searchl.front();
         to_searchl.pop_front();
-        result += word;
-        p = abs(base[p]) + vocab[word];
+        b = abs(base[p]) + vocab[word];
         int bp = base[p];
         if (bp < 0) { 
             cout << result << endl;
         }
+        if (check[b] != p){
+            break;
+        }
+        p = b;
+        result += word;
     }
 }
 
@@ -150,7 +185,8 @@ void DoubleArrayTrie::loop_map(unordered_map<string, int> map){
 
 int main(){
     DoubleArrayTrie dat;
-    deque<string> company = read_file("~/SocialCredits/CompanyName/company_names.txt");
+    deque<string> company = {"he", "his", "se", "she", "hers"};
+    // deque<string> company = {"啊", "埃及", "阿胶", "阿根廷", "阿拉伯", "阿拉伯人"};
     dat.make_ac(company);
     dat.prefix_search("hers");
 }
