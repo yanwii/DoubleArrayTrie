@@ -11,6 +11,8 @@
         "iostream": "cpp",
         "cmath": "cpp",
         "complex": "cpp",
-        "cstdlib": "cpp"
+        "cstdlib": "cpp",
+        "*.tcc": "cpp",
+        "system_error": "cpp"
     }
 }
