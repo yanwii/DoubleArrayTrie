@@ -10,8 +10,8 @@ using namespace std;
 typedef struct Siblings{
     bool is_end = false;
     bool is_begin = false;
-    int parent_state;
     int code;
+    int parent_state;
     string parent_word;
     string word;
 } Node;
@@ -40,7 +40,7 @@ class DoubleArrayTrie{
 
     int next_check_pos = 0;
     int nums_word = 0;
-    int alloc_size = 1;
+    int alloc_size = 50000;
     unordered_map<string, int> vocab;
 };
 #endif
