@@ -139,11 +139,7 @@ siblings_def DoubleArrayTrie::fetch_siblings(int col, cut_seg_def segments){
     for (deque<string> seg: segments){
         if (col >= seg.size()) { continue; }
         string word = seg[col];
-        string dup_key = col == 0 ? "_" + word : seg[col-1] + "_" + word;
         
-        if (dup[dup_key]==1) { continue; }
-        dup[dup_key] = 1;
-
         vocab[word] = vocab[word] == 0 ? ++nums_word : vocab[word];
         if (col == 0) { 
             check[vocab[word]] = 1;
@@ -227,6 +223,6 @@ int main(){
     dat.make_ac(company);
     stop = time(NULL);
     cout << "cost: " << stop - start << endl; 
-    dat.prefix_search("河北捷成建设造价咨询有限公司ssss");
+    dat.prefix_search("天津津安物业有限公司ssss");
 }
 
