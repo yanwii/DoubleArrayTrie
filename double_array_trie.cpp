@@ -195,6 +195,7 @@ int DoubleArrayTrie::find_begin(deque<Node> siblings, int begin_s){
     int pos = siblings[0].code + 1 > max_index ? siblings[0].code : max_index - 1; 
     bool is_found = true;
     int begin = 0;
+    int first = 0;
     while(true){
         for (Node node: siblings){
             pos ++;
@@ -204,6 +205,9 @@ int DoubleArrayTrie::find_begin(deque<Node> siblings, int begin_s){
             if (base[code + begin] !=0 || check[code + begin] !=0){
                 is_found = false;
                 break;
+            } else if (first == 0){
+                max_index = pos;
+                first = 1;
             }
         }
         if (!is_found){
