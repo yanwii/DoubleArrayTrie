@@ -25,7 +25,7 @@ class DoubleArrayTrie{
     public:
     DoubleArrayTrie(){};
     void make_ac(deque<string>);
-    int find_begin(deque<Node>);
+    int find_begin(deque<Node>, int);
     int prefix_search(string);
     void loop_map(unordered_map<string, int>);
     void init_storage();
@@ -35,7 +35,7 @@ class DoubleArrayTrie{
     void print();
     cut_seg_def cut_seg(const deque<string> &);
     siblings_def fetch_siblings(int, cut_seg_def);
-    siblings_def fetch_siblings(deque<Node>);
+    siblings_def fetch_siblings(deque<Node>, int &);
     // int base[100] = {0};
     // int check[100] = {0};
     deque<int> base;
@@ -44,7 +44,7 @@ class DoubleArrayTrie{
 
     int next_check_pos = 0;
     int nums_word = 0;
-    int alloc_size = 100000;
+    int alloc_size = 10000000;
     int max_col = 0;
     int max_index = 0;
     unordered_map<string, int> vocab;
