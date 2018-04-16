@@ -11,7 +11,9 @@ typedef struct Siblings{
     bool is_end = false;
     bool is_begin = false;
     int code;
+    int col;
     int parent_state;
+    deque<string> segments;
     string parent_seg;
     string word;
 } Node;
@@ -33,6 +35,7 @@ class DoubleArrayTrie{
     void print();
     cut_seg_def cut_seg(const deque<string> &);
     siblings_def fetch_siblings(int, cut_seg_def);
+    siblings_def fetch_siblings(deque<Node>);
     // int base[100] = {0};
     // int check[100] = {0};
     deque<int> base;

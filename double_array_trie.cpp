@@ -44,36 +44,40 @@ void DoubleArrayTrie::make_ac(deque<string> list){
 
     // deque<string> list = {"he" ,"his", "she", "her", "hers"};
     cut_seg_def segments = cut_seg(list);
+    deque<deque<Node>> queue;
+    siblings_def sibling_map = fetch_siblings(0, segments);
+    for (auto it=sibling_map.begin(); it!=sibling_map.end(); it++){
+        queue.push_back(it->second);        
+    }
     int col = 0;
     int max_col = 20;
     clock_t start, stop;
-    while (col < max_col){
+    while (!queue.empty()){
+        deque<Node> siblings = queue.front();
+        queue.pop_front();
         // Loop the segments then adding word to vocab while 
         // constructing the base & check.
-        siblings_def siblings_map = fetch_siblings(col, segments);
-        if (col == 0) { col++; print(); continue; }
+        siblings_def siblings_map = fetch_siblings(siblings);
         if (siblings_map.empty()) { break; }
-        int local_max_index = 0;
         for(auto it=siblings_map.begin(); it!=siblings_map.end(); it++){
             string parent_word = it->first;
-            deque<Node> siblings = it->second;
-            start = clock();
+            siblings = it->second;
+            // find begin
             int begin = find_begin(siblings);
-            for (Node node:siblings) {
+
+            // collect siblings
+            for (Node node: siblings){
                 string word = node.word;
-                int code = node.code;
-                string parent_seg = node.parent_seg;
-                int t = code + begin;
                 int s = node.parent_state;
-                local_max_index = s > local_max_index ? s : local_max_index;
+                int code = node.code;
+
+                int t = code + begin;
                 check[t] = s;
                 charl[t] = word;
                 base[s] = begin;
             }
+            queue.push_back(siblings);
         }
-        cout << "col: " << col << endl;
-        col ++;
-        print();
     }
     // perfct list base
     // if the word is the end of a segment but there are words atfer it(e.g.: he her):
@@ -130,39 +134,61 @@ int DoubleArrayTrie::get_parent_state(string seg){
     return p;
 }
 
+
 siblings_def DoubleArrayTrie::fetch_siblings(int col, cut_seg_def segments){
-    // ignore dup key
-    unordered_map<string, int> dup;
-    // collect siblings and figure out begin
-    siblings_def siblings_map;
-    string parent_seg = "";
+    siblings_def siblings;
+    string parent_word = "root";
     for (deque<string> seg: segments){
-        if (col >= seg.size()) { continue; }
-        string word = seg[col];
-        
+        string word = seg[0];
         vocab[word] = vocab[word] == 0 ? ++nums_word : vocab[word];
-        if (col == 0) { 
-            check[vocab[word]] = 1;
-            charl[vocab[word]] = word;
-            continue;
-        } else {
-            Node node;
-            for (int i=0; i<col; i++) { parent_seg += seg[i];}
-            node.parent_seg = parent_seg;
-            node.code = vocab[word];
-            node.word = word;
-            node.parent_state = get_parent_state(parent_seg);
-            string parent_word = seg[col - 1];
-            siblings_map[parent_word].push_back(node);
-            parent_seg = "";
+
+        check[vocab[word]] = 1;
+        charl[vocab[word]] = word;
+
+        Node node;
+        node.word = seg[0];
+        node.parent_state = 0;
+        node.parent_seg = "";
+        node.col = 0;
+        node.segments = seg;
+        node.code = vocab[word];
+        siblings[parent_word].push_back(node);
+    }
+    return siblings;
+}
+
+siblings_def DoubleArrayTrie::fetch_siblings(deque<Node> siblings){
+    // ignore dup key
+    // collect siblings and figure out begin
+    siblings_def child_map;
+    for (Node node: siblings){
+        if ((node.col + 1) < node.segments.size()){
+            string parent_wrod = node.word;
+            int col = node.col + 1;
+            deque<string> segments = node.segments;
+            string word = segments[col];
+            vocab[word] = vocab[word] == 0 ? ++nums_word : vocab[word];
+
+            Node child_node;
+            child_node.word = word;
+            child_node.code = vocab[word];
+            child_node.segments = segments;
+            child_node.col = col;
+            string parent_seg = "";
+            for (int i=0; i<col; i++) { parent_seg += segments[i]; }
+            child_node.parent_seg = parent_seg;
+            child_node.parent_state = get_parent_state(parent_seg);
+
+            child_map[parent_wrod].push_back(child_node);
         }
     }
-    return siblings_map;
+    return child_map;
 }
 
 int DoubleArrayTrie::find_begin(deque<Node> siblings){
     int begin = 1;
     bool is_found = true;
+
     while(true){
         for (Node node: siblings){
             int code = node.code;
@@ -194,12 +220,11 @@ int DoubleArrayTrie::prefix_search(string to_search){
         to_searchl.pop_front();
         b = abs(base[p]) + vocab[word];
         int bp = base[p];
-        cout << charl[b] << " " << word << endl;
-        cout << check[b] << " " << p << endl;
+        cout << word << " " << bp << " " << check[b] << " " << p << endl;
         if (bp < 0) { 
             cout << result << endl;
         }
-        if (check[b] != p && charl[b] != word){
+        if (check[b] != p){
             return 0;
         }
         p = b;
@@ -224,6 +249,6 @@ int main(){
     dat.make_ac(company);
     stop = time(NULL);
     cout << "cost: " << stop - start << endl; 
-    dat.prefix_search("天津s安物业有限公司ssss");
+    dat.prefix_search("海南永腾贸易有限公司ssss");
 }
 
