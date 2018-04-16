@@ -194,11 +194,12 @@ int DoubleArrayTrie::prefix_search(string to_search){
         to_searchl.pop_front();
         b = abs(base[p]) + vocab[word];
         int bp = base[p];
-        cout << p << " " << b << endl;
+        cout << charl[b] << " " << word << endl;
+        cout << check[b] << " " << p << endl;
         if (bp < 0) { 
             cout << result << endl;
         }
-        if (check[b] != p){
+        if (check[b] != p && charl[b] != word){
             return 0;
         }
         p = b;
@@ -223,6 +224,6 @@ int main(){
     dat.make_ac(company);
     stop = time(NULL);
     cout << "cost: " << stop - start << endl; 
-    dat.prefix_search("天津津安物业有限公司ssss");
+    dat.prefix_search("天津s安物业有限公司ssss");
 }
 
