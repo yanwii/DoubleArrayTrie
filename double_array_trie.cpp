@@ -12,7 +12,7 @@ cut_seg_def DoubleArrayTrie::cut_seg(const deque<string> &list){
     deque<deque<string>> segments;
     for (string word: list){ 
         try{
-            deque<string> cut_seg = cut(word, false);
+            deque<string> cut_seg = cut(word, true);
             max_col = cut_seg.size() > max_col ? cut_seg.size() : max_col;
             segments.push_back(cut_seg); 
         } catch(exception &e){
@@ -51,7 +51,7 @@ void DoubleArrayTrie::make_ac(deque<string> list){
         // Loop the segments then adding word to vocab while 
         // constructing the base & check.
         siblings_def siblings_map = fetch_siblings(col, segments);
-        if (col == 0) { col++; print(); continue; }
+        if (col == 0) { col++; continue; }
         if (siblings_map.empty()) { break; }
         int local_max_index = 0;
         for(auto it=siblings_map.begin(); it!=siblings_map.end(); it++){
@@ -73,7 +73,6 @@ void DoubleArrayTrie::make_ac(deque<string> list){
         }
         cout << "col: " << col << endl;
         col ++;
-        print();
     }
     // perfct list base
     // if the word is the end of a segment but there are words atfer it(e.g.: he her):
@@ -100,7 +99,6 @@ void DoubleArrayTrie::make_ac(deque<string> list){
         if (bp > 0) { base[p] = -base[p];}
         else if (bp == 0) { base[p] = -1;} 
     }
-    print();
 }
 
 void DoubleArrayTrie::print(){
@@ -161,10 +159,12 @@ siblings_def DoubleArrayTrie::fetch_siblings(int col, cut_seg_def segments){
 }
 
 int DoubleArrayTrie::find_begin(deque<Node> siblings){
-    int begin = 1;
+    int pos = siblings[0].code + 1 > max_index ? siblings[0].code : max_index;
     bool is_found = true;
+    int begin = 0;
     while(true){
         for (Node node: siblings){
+            begin = pos - siblings[0].code;
             int code = node.code;
             if (code + begin > alloc_size) { cout << "leak" << endl;}
             if (base[code + begin] !=0 || check[code + begin] !=0){
@@ -173,7 +173,7 @@ int DoubleArrayTrie::find_begin(deque<Node> siblings){
             }
         }
         if (!is_found){
-            begin ++;
+            pos++;
             is_found = true;
         } else {
             return begin;
@@ -183,7 +183,7 @@ int DoubleArrayTrie::find_begin(deque<Node> siblings){
 }
 
 int DoubleArrayTrie::prefix_search(string to_search){
-    deque<string> to_searchl = cut(to_search, false);
+    deque<string> to_searchl = cut(to_search, true);
     string word = to_searchl.front();
     to_searchl.pop_front();
     int p = vocab[word];
@@ -194,8 +194,6 @@ int DoubleArrayTrie::prefix_search(string to_search){
         to_searchl.pop_front();
         b = abs(base[p]) + vocab[word];
         int bp = base[p];
-        cout << charl[b] << " " << word << endl;
-        cout << check[b] << " " << p << endl;
         if (bp < 0) { 
             cout << result << endl;
         }
@@ -224,6 +222,6 @@ int main(){
     dat.make_ac(company);
     stop = time(NULL);
     cout << "cost: " << stop - start << endl; 
-    dat.prefix_search("天津s安物业有限公司ssss");
+    dat.prefix_search("杭州东大润滑油有限公司");
 }
 
