@@ -41,7 +41,7 @@ class DoubleArrayTrie{
 
     int next_check_pos = 0;
     int nums_word = 0;
-    int alloc_size = 100000;
+    int alloc_size = 20000000;
     int max_col = 0;
     int max_index = 0;
     unordered_map<string, int> vocab;

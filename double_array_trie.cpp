@@ -72,6 +72,7 @@ void DoubleArrayTrie::make_ac(deque<string> list){
             }
         }
         cout << "col: " << col << endl;
+        cout << max_index << endl;
         col ++;
     }
     // perfct list base
@@ -159,9 +160,10 @@ siblings_def DoubleArrayTrie::fetch_siblings(int col, cut_seg_def segments){
 }
 
 int DoubleArrayTrie::find_begin(deque<Node> siblings){
-    int pos = siblings[0].code + 1 > max_index ? siblings[0].code : max_index;
+    int pos = siblings[0].code + 1 > max_index ? siblings[0].code + 1: max_index;
     bool is_found = true;
     int begin = 0;
+    int first = 0;
     while(true){
         for (Node node: siblings){
             begin = pos - siblings[0].code;
@@ -170,7 +172,11 @@ int DoubleArrayTrie::find_begin(deque<Node> siblings){
             if (base[code + begin] !=0 || check[code + begin] !=0){
                 is_found = false;
                 break;
+            } else if (first == 0){
+                max_index = pos;
+                first == 1;
             }
+
         }
         if (!is_found){
             pos++;
