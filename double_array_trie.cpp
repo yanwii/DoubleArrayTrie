@@ -35,7 +35,7 @@ void DoubleArrayTrie::reallocate_storage(int new_size){
 void DoubleArrayTrie::init_storage(){
     base = deque<int> (alloc_size, 0);
     check = deque<int> (alloc_size, 0);
-    charl = deque<string> (alloc_size, "");
+    // charl = deque<string> (alloc_size, "");
 }
 
 void DoubleArrayTrie::make_ac(deque<string> list){
@@ -79,7 +79,7 @@ void DoubleArrayTrie::make_ac(deque<string> list){
                 int t = code + begin;
                 max_index = t > max_index ? t : max_index;
                 check[t] = s;
-                charl[t] = word;
+                // charl[t] = word;
                 base[s] = begin;
             }
             queue.push_back(siblings);
@@ -120,7 +120,7 @@ void DoubleArrayTrie::print(){
         cout << " ";
         cout << check[i];
         cout << " ";
-        cout << charl[i] << endl;
+        // cout << charl[i] << endl;
     }
     cout << "-------------" << endl;
 }
@@ -148,7 +148,7 @@ siblings_def DoubleArrayTrie::fetch_siblings(int col, cut_seg_def segments){
         vocab[word] = vocab[word] == 0 ? ++nums_word : vocab[word];
 
         check[vocab[word]] = 1;
-        charl[vocab[word]] = word;
+        // charl[vocab[word]] = word;
 
         Node node;
         node.word = seg[0];

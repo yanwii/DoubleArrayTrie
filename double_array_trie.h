@@ -40,11 +40,11 @@ class DoubleArrayTrie{
     // int check[100] = {0};
     deque<int> base;
     deque<int> check;
-    deque<string> charl;
+    // deque<string> charl;
 
     int next_check_pos = 0;
     int nums_word = 0;
-    int alloc_size = 10000000;
+    int alloc_size = 40000000;
     int max_col = 0;
     int max_index = 0;
     unordered_map<string, int> vocab;
