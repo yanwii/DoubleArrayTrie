@@ -19,7 +19,7 @@ typedef deque<deque<string>> cut_seg_def;
 class DoubleArrayTrie{
     public:
     DoubleArrayTrie(){};
-    void make_ac(deque<string>);
+    void make_ac(deque<string> &);
     int find_begin(deque<Node>);
     int prefix_search(string);
     void loop_map(unordered_map<string, int>);
@@ -28,7 +28,7 @@ class DoubleArrayTrie{
     int get_parent_state(string);
     void print();
     cut_seg_def cut_seg(deque<string> &);
-    siblings_def fetch_siblings(int, cut_seg_def);
+    siblings_def fetch_siblings(int, cut_seg_def &);
     // int base[100] = {0};
     // int check[100] = {0};
     deque<int> base;

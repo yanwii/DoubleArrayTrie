@@ -7,6 +7,10 @@
 #include <string>
 #include <time.h>
 #include <deque>
+#include <fstream>
+#include <chrono>
+#include <thread>
+#include "cedar.h"
 using namespace std;
 
 void pause(){
@@ -47,7 +51,7 @@ void DoubleArrayTrie::init_storage(){
     // charl = deque<string> (alloc_size, "");
 }
 
-void DoubleArrayTrie::make_ac(deque<string> list){
+void DoubleArrayTrie::make_ac(deque<string>& list){
     // storage allocation
     init_storage();
     // deque<string> list = {"he" ,"his", "she", "her", "hers"};
@@ -68,7 +72,9 @@ void DoubleArrayTrie::make_ac(deque<string> list){
             deque<Node> siblings = it->second;
             start = clock();
             int begin = find_begin(siblings);
-            for (Node node:siblings) {
+            while(!siblings.empty()){
+                Node node = siblings.front();
+                siblings.pop_front();
                 string word = node.word;
                 int code = node.code;
                 int t = code + begin;
@@ -136,17 +142,14 @@ int DoubleArrayTrie::get_parent_state(string seg){
     return p;
 }
 
-siblings_def DoubleArrayTrie::fetch_siblings(int col, cut_seg_def segments){
+siblings_def DoubleArrayTrie::fetch_siblings(int col, cut_seg_def &segments){
     // collect siblings and figure out begin
     siblings_def siblings_map;
     string parent_seg = "";
-    while(!segments.empty()){
-        deque<string> seg = segments.front();
-        segments.pop_front();
+    for(deque<string> seg:segments){
         if (col >= seg.size()) { continue; }
         string word = seg[col];
         vocab[word] = vocab[word] == 0 ? ++nums_word : vocab[word];
-        
         if (col == 0) { 
             check[vocab[word]] = 1;
             continue;
@@ -226,17 +229,37 @@ void DoubleArrayTrie::loop_map(unordered_map<string, int> map){
     }
 }
 
-int main(){
-    DoubleArrayTrie dat;
-    deque<string> company = read_file("test");
-    // deque<string> company = {"he" ,"her", "his", "se", "she", "hers"};
-    // deque<string> company = {"阿拉伯人去哪里", "重庆人啊去哪里"};
-    time_t start, stop;
+vector<string> read(string file_name){
+    ifstream ifs(file_name, ifstream::in);
+    string line;
+    vector<string> company_names;
+    while(getline(ifs, line)){
+        company_names.push_back(line);
+    }
+    return company_names;
+}
 
-    start = time(NULL);
-    dat.make_ac(company);
-    stop = time(NULL);
-    cout << "cost: " << stop - start << endl; 
-    dat.prefix_search("河北捷成建设造价咨询有限公司hers");
+
+void test(){
+    vector<string> company = read("/home/yanwii/SocialCredits/CompanyName/company_names.txt");
+    pause();
+    vector<string>().swap(company);
+    cout << company.size() << endl;
+    pause();
+}
+
+int main(){
+    test();
+    // DoubleArrayTrie dat;
+    // deque<string> company = read_file("test");
+    // // deque<string> company = {"he" ,"her", "his", "se", "she", "hers"};
+    // // deque<string> company = {"阿拉伯人去哪里", "重庆人啊去哪里"};
+    // time_t start, stop;
+
+    // start = time(NULL);
+    // dat.make_ac(company);
+    // stop = time(NULL);
+    // cout << "cost: " << stop - start << endl; 
+    // dat.prefix_search("河北捷成建设造价咨询有限公司hers");
 }
 
