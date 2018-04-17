@@ -3,6 +3,7 @@
 #include <deque>
 #include <algorithm>
 #include <fstream>
+#include <functional>
 #include "utils.h"
 using namespace std;
 
@@ -38,4 +39,12 @@ deque<string> read_file(string file_name){
     }
     ifs.close();
     return company_names;
+}
+
+template<class T>
+void STLClearObject(T* obj){
+    T tmp;
+    tmp.swap(*obj);
+    // Sometimes "T tmp" allocates objects with memory (arena implementation?).
+    // Hence using additional reserve(0) even if it doesn't always work.
 }

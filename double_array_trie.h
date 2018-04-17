@@ -8,11 +8,8 @@ using namespace std;
 
 
 typedef struct Siblings{
-    bool is_end = false;
-    bool is_begin = false;
     int code;
     int parent_state;
-    string parent_seg;
     string word;
 } Node;
 
@@ -28,16 +25,15 @@ class DoubleArrayTrie{
     void loop_map(unordered_map<string, int>);
     void init_storage();
     void reallocate_storage(int);
-    deque<string> sibling_words;
     int get_parent_state(string);
     void print();
-    cut_seg_def cut_seg(const deque<string> &);
+    cut_seg_def cut_seg(deque<string> &);
     siblings_def fetch_siblings(int, cut_seg_def);
     // int base[100] = {0};
     // int check[100] = {0};
     deque<int> base;
     deque<int> check;
-    deque<string> charl;
+    // deque<string> charl;
 
     int next_check_pos = 0;
     int nums_word = 0;
