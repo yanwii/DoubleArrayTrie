@@ -13,26 +13,30 @@ typedef struct Siblings{
     string word;
 } Node;
 
-typedef unordered_map<string, deque<Node>> siblings_def;
-typedef deque<deque<string>> cut_seg_def;
+typedef unordered_map<string, vector<Node>> siblings_def;
+typedef vector<vector<string>> cut_seg_def;
 
 class DoubleArrayTrie{
     public:
     DoubleArrayTrie(){};
-    void make_ac(deque<string> &);
-    int find_begin(deque<Node>);
+
+    template<class T>
+    void STL_clear(T&);
+
+    void make_ac(vector<string> &);
+    int find_begin(vector<Node>);
     int prefix_search(string);
     void loop_map(unordered_map<string, int>);
     void init_storage();
     void reallocate_storage(int);
     int get_parent_state(string);
     void print();
-    cut_seg_def cut_seg(deque<string> &);
+    cut_seg_def cut_seg(vector<string> &);
     siblings_def fetch_siblings(int, cut_seg_def &);
     // int base[100] = {0};
     // int check[100] = {0};
-    deque<int> base;
-    deque<int> check;
+    vector<int> base;
+    vector<int> check;
     // deque<string> charl;
 
     int next_check_pos = 0;

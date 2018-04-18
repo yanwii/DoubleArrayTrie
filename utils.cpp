@@ -4,11 +4,12 @@
 #include <algorithm>
 #include <fstream>
 #include <functional>
+#include <string>
 #include "utils.h"
 using namespace std;
 
-deque<string> cut(const string &word, bool if_reverse=false){
-    deque<string> segments;
+vector<string> cut(const string &word, bool if_reverse=false){
+    vector<string> segments;
     string tmp = "";
     for (int i=0; i < word.size(); i++){
         if(word.at(i) <= -1){
@@ -30,10 +31,10 @@ deque<string> cut(const string &word, bool if_reverse=false){
     return segments;
 }
 
-deque<string> read_file(string file_name){
+vector<string> read_file(string file_name){
     ifstream ifs(file_name, ifstream::in);
     string line;
-    deque<string> company_names;
+    vector<string> company_names;
     while(getline(ifs, line)){
         company_names.push_back(line);
     }
@@ -41,10 +42,17 @@ deque<string> read_file(string file_name){
     return company_names;
 }
 
-template<class T>
-void STLClearObject(T* obj){
-    T tmp;
-    tmp.swap(*obj);
-    // Sometimes "T tmp" allocates objects with memory (arena implementation?).
-    // Hence using additional reserve(0) even if it doesn't always work.
+
+wstring string_to_wstring(const string& s)
+{
+    std::string strLocale = setlocale(LC_ALL, "");
+    const char* chSrc = s.c_str();
+    size_t nDestSize = mbstowcs(NULL, chSrc, 0) + 1;
+    wchar_t* wchDest = new wchar_t[nDestSize];
+    wmemset(wchDest, 0, nDestSize);
+    mbstowcs(wchDest,chSrc,nDestSize);
+    std::wstring wstrResult = wchDest;
+    delete []wchDest;
+    setlocale(LC_ALL, strLocale.c_str());
+    return wstrResult;
 }

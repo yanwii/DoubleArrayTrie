@@ -19,13 +19,13 @@ void pause(){
     cin >> inputs;
 }
 
-cut_seg_def DoubleArrayTrie::cut_seg(deque<string> &list){
-    deque<deque<string>> segments;
+cut_seg_def DoubleArrayTrie::cut_seg(vector<string> &list){
+    cut_seg_def segments;
     while(!list.empty()){
-        string word = list.front();
-        list.pop_front();
+        string word = list.back();
+        list.pop_back();
         try{
-            deque<string> cut_seg = cut(word, false);
+            vector<string> cut_seg = cut(word, false);
             max_col = cut_seg.size() > max_col ? cut_seg.size() : max_col;
             segments.push_back(cut_seg); 
         } catch(exception &e){
@@ -46,16 +46,18 @@ void DoubleArrayTrie::reallocate_storage(int new_size){
 }
 
 void DoubleArrayTrie::init_storage(){
-    base = deque<int> (alloc_size, 0);
-    check = deque<int> (alloc_size, 0);
+    base = vector<int> (alloc_size, 0);
+    check = vector<int> (alloc_size, 0);
     // charl = deque<string> (alloc_size, "");
 }
 
-void DoubleArrayTrie::make_ac(deque<string>& list){
+void DoubleArrayTrie::make_ac(vector<string>& list){
     // storage allocation
     init_storage();
     // deque<string> list = {"he" ,"his", "she", "her", "hers"};
     cut_seg_def segments = cut_seg(list);
+    STL_clear(list);
+
     int col = 0;
     int max_col = 20;
     clock_t start, stop;
@@ -67,14 +69,13 @@ void DoubleArrayTrie::make_ac(deque<string>& list){
         if (col == 0) { col++; continue; }
         if (siblings_map.empty()) { break; }
         int local_max_index = 0;
-        for(auto it=siblings_map.begin(); it!=siblings_map.end(); it++){
+        for (auto it=siblings_map.begin(); it!=siblings_map.end(); it++){
             string parent_word = it->first;
-            deque<Node> siblings = it->second;
+            vector<Node> siblings = it->second;
             start = clock();
             int begin = find_begin(siblings);
-            while(!siblings.empty()){
-                Node node = siblings.front();
-                siblings.pop_front();
+            for (int i=0; i<siblings.size(); i++){
+                Node node = siblings[i];
                 string word = node.word;
                 int code = node.code;
                 int t = code + begin;
@@ -92,19 +93,16 @@ void DoubleArrayTrie::make_ac(deque<string>& list){
     //  base[i] = -base[i]
     // else
     //  base[i] = -i
-    while(!segments.empty()){
-        deque<string> seg = segments.front();
-        segments.pop_front();
-        string word = seg.front();
+    for (int i=0; i<segments.size(); i++){
+        vector<string> seg = segments[i];
+        string word = seg[0];
         string sent = word;
-        seg.pop_front();
         int p = vocab[word];
         int b = 0;
         int bp = 0;
-        while(!seg.empty()){
-            word = seg.front();
+        for (int j=1; j<seg.size(); j++){
+            word = seg[j];
             sent += word;
-            seg.pop_front();
             b = abs(base[p]) + vocab[word];
             p = b;
         }
@@ -112,8 +110,18 @@ void DoubleArrayTrie::make_ac(deque<string>& list){
         if (bp > 0) { base[p] = -base[p];}
         else if (bp == 0) { base[p] = -1;} 
     }
+    pause();
+    STL_clear(segments);
+    pause();
     print();
 }
+
+template<class T>
+void DoubleArrayTrie::STL_clear(T& obj){
+    T empty;
+    empty.swap(obj);
+}
+
 
 void DoubleArrayTrie::print(){
     for (int i=0; i<30 ; i++){
@@ -129,14 +137,12 @@ void DoubleArrayTrie::print(){
 }
 
 int DoubleArrayTrie::get_parent_state(string seg){
-    deque<string> to_searchl = cut(seg, false); 
-    string word = to_searchl.front();
-    to_searchl.pop_front();
+    vector<string> to_searchl = cut(seg, false); 
+    string word = to_searchl[0];
     int p = vocab[word];
     int b = 0;
-    while(!to_searchl.empty()){
-        word = to_searchl.front();
-        to_searchl.pop_front();
+    for(int i=1; i<to_searchl.size(); i++){
+        word = to_searchl[i];
         p = abs(base[p]) + vocab[word];
     }
     return p;
@@ -146,7 +152,7 @@ siblings_def DoubleArrayTrie::fetch_siblings(int col, cut_seg_def &segments){
     // collect siblings and figure out begin
     siblings_def siblings_map;
     string parent_seg = "";
-    for(deque<string> seg:segments){
+    for(vector<string> seg:segments){
         if (col >= seg.size()) { continue; }
         string word = seg[col];
         vocab[word] = vocab[word] == 0 ? ++nums_word : vocab[word];
@@ -168,7 +174,7 @@ siblings_def DoubleArrayTrie::fetch_siblings(int col, cut_seg_def &segments){
     return siblings_map;
 }
 
-int DoubleArrayTrie::find_begin(deque<Node> siblings){
+int DoubleArrayTrie::find_begin(vector<Node> siblings){
     int pos = siblings[0].code + 1 > max_index ? siblings[0].code + 1: max_index;
     bool is_found = true;
     int begin = 0;
@@ -198,15 +204,13 @@ int DoubleArrayTrie::find_begin(deque<Node> siblings){
 }
 
 int DoubleArrayTrie::prefix_search(string to_search){
-    deque<string> to_searchl = cut(to_search, false);
-    string word = to_searchl.front();
-    to_searchl.pop_front();
+    vector<string> to_searchl = cut(to_search, false);
+    string word = to_searchl[0];
     int p = vocab[word];
     int b = 0;
     string result = word;
-    while(!to_searchl.empty()){
-        word = to_searchl.front();
-        to_searchl.pop_front();
+    for(int i=1; i<to_searchl.size(); i++){
+        word = to_searchl[i];
         b = abs(base[p]) + vocab[word];
         int bp = base[p];
         if (bp < 0) { 
@@ -241,25 +245,22 @@ vector<string> read(string file_name){
 
 
 void test(){
-    vector<string> company = read("/home/yanwii/SocialCredits/CompanyName/company_names.txt");
+    vector<string> company = read_file("/home/yanwii/SocialCredits/CompanyName/company_names.txt");
     pause();
-    vector<string>().swap(company);
     cout << company.size() << endl;
     pause();
 }
 
 int main(){
-    test();
-    // DoubleArrayTrie dat;
-    // deque<string> company = read_file("test");
-    // // deque<string> company = {"he" ,"her", "his", "se", "she", "hers"};
-    // // deque<string> company = {"阿拉伯人去哪里", "重庆人啊去哪里"};
-    // time_t start, stop;
-
-    // start = time(NULL);
-    // dat.make_ac(company);
-    // stop = time(NULL);
-    // cout << "cost: " << stop - start << endl; 
-    // dat.prefix_search("河北捷成建设造价咨询有限公司hers");
+    DoubleArrayTrie dat;
+    vector<string> company = read_file("test");
+    // vector<string> company = {"he" ,"her", "his", "se", "she", "hers"};
+    // vector<string> company = {"阿拉伯人去哪里", "重庆人啊去哪里"};
+    time_t start, stop;
+    start = time(NULL);
+    dat.make_ac(company);
+    stop = time(NULL);
+    cout << "cost: " << stop - start << endl; 
+    dat.prefix_search("hers");
 }
 

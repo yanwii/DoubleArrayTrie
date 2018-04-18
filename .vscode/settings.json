@@ -13,6 +13,8 @@
         "complex": "cpp",
         "cstdlib": "cpp",
         "*.tcc": "cpp",
-        "system_error": "cpp"
+        "system_error": "cpp",
+        "chrono": "cpp",
+        "istream": "cpp"
     }
 }

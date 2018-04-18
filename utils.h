@@ -2,10 +2,10 @@
 #define TTA_UTILS
 
 #include <iostream>
-#include <deque>
+#include <vector>
 using namespace std;
 
-deque<string> cut(const string &word, bool);
-deque<string> read_file(string);
-
+vector<string> cut(const string &word, bool);
+vector<string> read_file(string);
+wstring string_to_wstring(const string &);
 #endif
