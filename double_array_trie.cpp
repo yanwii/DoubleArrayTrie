@@ -1,6 +1,5 @@
 #include <iostream>
 #include <vector>
-#include <deque>
 #include "double_array_trie.h"
 #include "utils.h"
 #include <math.h>
@@ -82,7 +81,6 @@ void DoubleArrayTrie::make_ac(vector<wstring>& list){
             int begin = find_begin(siblings);
             for (int i=0; i<siblings.size(); i++){
                 Node node = siblings[i];
-                wstring word = node.word;
                 int code = node.code;
                 int t = code + begin;
                 int s = node.parent_state;
@@ -93,7 +91,7 @@ void DoubleArrayTrie::make_ac(vector<wstring>& list){
             }
         }
         col ++;
-        wcout << col << endl;
+        // wcout << col << endl;
     }
     // perfct list base
     // if the word is the end of a segment but there are words atfer it(e.g.: he her):
@@ -118,7 +116,7 @@ void DoubleArrayTrie::make_ac(vector<wstring>& list){
         else if (bp == 0) { base[p] = -1;} 
     }
     STL_clear(list);
-    print();
+    // print();
 }
 
 template<class T>
@@ -212,16 +210,18 @@ int DoubleArrayTrie::find_begin(vector<Node> siblings){
 
 }
 
-vector<string> DoubleArrayTrie::common_prefix_search(string to_search){
+vector<string> DoubleArrayTrie::common_prefix_search(string& to_search){
     vector<int> index = prefix_search(to_search);
     wstring seg = string_to_wstring(to_search);
-    for (int i: index){
-        wcout << i << endl;
+    for (int i: index){ 
         wcout << seg.substr(0, i) << endl;
     }
+    STL_clear(index);
+    cout << "done" << endl;
+    return vector<string> {};
 }
 
-vector<int> DoubleArrayTrie::prefix_search(string to_search){
+vector<int> DoubleArrayTrie::prefix_search(string& to_search){
     wstring seg = string_to_wstring(to_search);
     wchar_t word = seg[0];
     int code = vocab[word];
@@ -229,17 +229,19 @@ vector<int> DoubleArrayTrie::prefix_search(string to_search){
     int p = code;
     int b = 0;
     vector<int> index;
+    wstring result = seg.substr(0, 1);
     for(int i=1; i<seg.size(); i++){
         word = seg[i];
         code = vocab[word];
 
         b = abs(base[p]) + code;
         int bp = base[p];
-        if (bp < 0) {
+        if (bp < 0 && seg.substr(0, i) == result) {
             index.push_back(i);
         }
         if ((check[b] == p || chari[b] == code )&& code != 0){
             p = b;
+            result += word;
             continue;
         }
         return index;
@@ -248,9 +250,9 @@ vector<int> DoubleArrayTrie::prefix_search(string to_search){
     return index;
 }
 
-void DoubleArrayTrie::loop_map(unordered_map<string, int> map){
+void DoubleArrayTrie::loop_map(unordered_map<wchar_t, int> map){
     for (auto it=map.begin(); it!=map.end(); it++){
-        cout << it->first << ":" << it->second << endl;
+        wcout << it->first << ":" << it->second << endl;
     }
 }
 
@@ -267,24 +269,24 @@ vector<string> read(string file_name){
 
 
 
-
 int main(){
+    locale::global(locale(""));
+    wcout.imbue(locale(""));
+    string to_search = "阿拉伯人";
+    wstring b = string_to_wstring(to_search);
     DoubleArrayTrie dat;
     // vector<wstring> company = read_file("test");
     // vector<wstring> company = read_file("/home/ubuntu/SocialCredits/CompanyName/company_names.txt");
-    vector<wstring> company = {L"he" ,L"her", L"his", L"se", L"she", L"hers", L"sers"};
-    // vector<wstring> company = {L"阿拉伯人", L"阿拉伯"};
+    // vector<wstring> company = {L"he" ,L"her", L"his", L"se", L"she", L"hers", L"sers"};
+    vector<wstring> company = {L"n拉伯", L"阿拉伯人", L"阿拉伯"};
     time_t start, stop;
     start = time(NULL);
     dat.make_ac(company);
     stop = time(NULL);
     // cout << "cost: " << stop - start << endl; 
-    dat.common_prefix_search("hers");
-
-    fstream file;
-    file.open("dat.dat", ios::out|ios::binary);
-    file.write((char *)&dat, sizeof(DoubleArrayTrie));
-    file.close();
+    // dat.prefix_search(to_search);
+    dat.common_prefix_search(to_search);
 
 }
+
 

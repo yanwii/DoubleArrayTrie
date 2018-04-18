@@ -18,10 +18,10 @@ typedef vector<vector<string>> cut_seg_def;
 
 class DoubleArrayTrie{
     private:
-    vector<int> prefix_search(string);
-
+    vector<int> prefix_search(string &);
     public:
     DoubleArrayTrie(){};
+    ~DoubleArrayTrie(){};
 
     template<class T>
     void STL_clear(T&);
@@ -29,8 +29,8 @@ class DoubleArrayTrie{
     void make_ac(vector<wstring> &);
     void make_ac(vector<string> &);
     int find_begin(vector<Node>);
-    vector<string> common_prefix_search(string);
-    void loop_map(unordered_map<string, int>);
+    vector<string> common_prefix_search(string&);
+    void loop_map(unordered_map<wchar_t, int>);
     void init_storage();
     void reallocate_storage(int);
     int get_parent_state(wstring);
