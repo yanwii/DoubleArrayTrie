@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <fstream>
 #include <functional>
+#include <codecvt>
+#include <locale>
 #include <string>
 #include "utils.h"
 using namespace std;
@@ -31,28 +33,27 @@ vector<string> cut(const string &word, bool if_reverse=false){
     return segments;
 }
 
-vector<string> read_file(string file_name){
+vector<wstring> read_file(const string& file_name){
     ifstream ifs(file_name, ifstream::in);
     string line;
-    vector<string> company_names;
+    vector<wstring> company_names;
     while(getline(ifs, line)){
-        company_names.push_back(line);
+        wstring wline = string_to_wstring(line);
+        company_names.push_back(wline);
     }
     ifs.close();
     return company_names;
 }
 
 
-wstring string_to_wstring(const string& s)
-{
-    std::string strLocale = setlocale(LC_ALL, "");
-    const char* chSrc = s.c_str();
-    size_t nDestSize = mbstowcs(NULL, chSrc, 0) + 1;
-    wchar_t* wchDest = new wchar_t[nDestSize];
-    wmemset(wchDest, 0, nDestSize);
-    mbstowcs(wchDest,chSrc,nDestSize);
-    std::wstring wstrResult = wchDest;
-    delete []wchDest;
-    setlocale(LC_ALL, strLocale.c_str());
-    return wstrResult;
+wstring string_to_wstring(const string& str){
+    using convert_typeX = std::codecvt_utf8<wchar_t>;
+    std::wstring_convert<convert_typeX, wchar_t> converterX;
+    return converterX.from_bytes(str);
+}
+
+string wstring_to_string(const wstring& wstr){
+    using convert_typeX = std::codecvt_utf8<wchar_t>;
+    std::wstring_convert<convert_typeX, wchar_t> converterX;
+    return converterX.to_bytes(wstr);
 }

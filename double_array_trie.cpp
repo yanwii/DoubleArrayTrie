@@ -6,11 +6,11 @@
 #include <math.h>
 #include <string>
 #include <time.h>
+#include <locale>
 #include <deque>
 #include <fstream>
 #include <chrono>
 #include <thread>
-#include "cedar.h"
 using namespace std;
 
 void pause(){
@@ -26,7 +26,6 @@ cut_seg_def DoubleArrayTrie::cut_seg(vector<string> &list){
         list.pop_back();
         try{
             vector<string> cut_seg = cut(word, false);
-            max_col = cut_seg.size() > max_col ? cut_seg.size() : max_col;
             segments.push_back(cut_seg); 
         } catch(exception &e){
             cout << e.what() << endl;
@@ -48,71 +47,77 @@ void DoubleArrayTrie::reallocate_storage(int new_size){
 void DoubleArrayTrie::init_storage(){
     base = vector<int> (alloc_size, 0);
     check = vector<int> (alloc_size, 0);
-    // charl = deque<string> (alloc_size, "");
+    chari = vector<int> (alloc_size, 0);
 }
 
 void DoubleArrayTrie::make_ac(vector<string>& list){
+    vector<wstring> wlist;
+    for (int i=0; i<list.size(); i++){
+        wlist.push_back(string_to_wstring(list[i]));
+    }
+    STL_clear(list);
+    make_ac(wlist);
+}
+
+void DoubleArrayTrie::make_ac(vector<wstring>& list){
     // storage allocation
     init_storage();
     // deque<string> list = {"he" ,"his", "she", "her", "hers"};
-    cut_seg_def segments = cut_seg(list);
-    STL_clear(list);
 
     int col = 0;
-    int max_col = 20;
+    int max_col = 40;
     clock_t start, stop;
     while (col < max_col){
         // Loop the segments then adding word to d while 
         // constructing the base & check.
-        siblings_def siblings_map = fetch_siblings(col, segments);
+        siblings_def siblings_map = fetch_siblings(col, list);
 
         if (col == 0) { col++; continue; }
         if (siblings_map.empty()) { break; }
         int local_max_index = 0;
         for (auto it=siblings_map.begin(); it!=siblings_map.end(); it++){
-            string parent_word = it->first;
+            wstring parent_word = it->first;
             vector<Node> siblings = it->second;
             start = clock();
             int begin = find_begin(siblings);
             for (int i=0; i<siblings.size(); i++){
                 Node node = siblings[i];
-                string word = node.word;
+                wstring word = node.word;
                 int code = node.code;
                 int t = code + begin;
                 int s = node.parent_state;
                 check[t] = s;
+                chari[t] = code;
                 // charl[t] = word;
                 base[s] = begin;
             }
         }
-        cout << "col: " << col << endl;
         col ++;
+        wcout << col << endl;
     }
     // perfct list base
     // if the word is the end of a segment but there are words atfer it(e.g.: he her):
     //  base[i] = -base[i]
     // else
     //  base[i] = -i
-    for (int i=0; i<segments.size(); i++){
-        vector<string> seg = segments[i];
-        string word = seg[0];
-        string sent = word;
-        int p = vocab[word];
+    for (int i=0; i<list.size(); i++){
+        wstring seg = list[i];
+        wchar_t word = seg[0];
+        int code = vocab[word];
+        int p = code;
         int b = 0;
         int bp = 0;
         for (int j=1; j<seg.size(); j++){
             word = seg[j];
-            sent += word;
-            b = abs(base[p]) + vocab[word];
+            code = vocab[word];
+            b = abs(base[p]) + code;
             p = b;
         }
         bp = base[p];
         if (bp > 0) { base[p] = -base[p];}
         else if (bp == 0) { base[p] = -1;} 
     }
-    pause();
-    STL_clear(segments);
-    pause();
+    STL_clear(list);
     print();
 }
 
@@ -124,51 +129,55 @@ void DoubleArrayTrie::STL_clear(T& obj){
 
 
 void DoubleArrayTrie::print(){
-    for (int i=0; i<30 ; i++){
+    for (int i=0; i<20 ; i++){
         cout << i;
         cout << " ";
         cout << base[i];
         cout << " ";
         cout << check[i];
-        cout << " " << endl;
-        // cout << charl[i] << endl;
+        cout << " ";
+        cout << chari[i] << endl;
     }
     cout << "-------------" << endl;
 }
 
-int DoubleArrayTrie::get_parent_state(string seg){
-    vector<string> to_searchl = cut(seg, false); 
-    string word = to_searchl[0];
-    int p = vocab[word];
+int DoubleArrayTrie::get_parent_state(wstring seg){
+    wchar_t word = seg[0];
+    int code = vocab[word];
+    int p = code;
     int b = 0;
-    for(int i=1; i<to_searchl.size(); i++){
-        word = to_searchl[i];
-        p = abs(base[p]) + vocab[word];
+    for(int i=1; i<seg.size(); i++){
+        word = seg[i];
+        code = vocab[word];
+        p = abs(base[p]) + code;
     }
     return p;
 }
 
-siblings_def DoubleArrayTrie::fetch_siblings(int col, cut_seg_def &segments){
+siblings_def DoubleArrayTrie::fetch_siblings(int col, vector<wstring> &segments){
     // collect siblings and figure out begin
     siblings_def siblings_map;
-    string parent_seg = "";
-    for(vector<string> seg:segments){
+    wstring parent_seg = L"";
+    for(int i=0; i<segments.size(); i++){
+        wstring seg = segments[i];
         if (col >= seg.size()) { continue; }
-        string word = seg[col];
-        vocab[word] = vocab[word] == 0 ? ++nums_word : vocab[word];
+        wchar_t word = seg[col];
+        vocab[word] = vocab[word] == 0 ? vocab[word] = ++nums_word : vocab[word];
+        int code = vocab[word];
+
         if (col == 0) { 
-            check[vocab[word]] = 1;
+            check[code] = 1;
+            chari[code] = code;
             continue;
         } else {
-            string parent_word = seg[col - 1];
-            string key = parent_word + "_" + word;
+            wstring parent_word = to_wstring(seg[col - 1]);
             Node node;
             for (int i=0; i<col; i++) { parent_seg += seg[i];}
-            node.code = vocab[word];
+            node.code = code;
             node.word = word;
             node.parent_state = get_parent_state(parent_seg);
             siblings_map[parent_word].push_back(node);
-            parent_seg = "";
+            parent_seg = L"";
         }
     }
     return siblings_map;
@@ -203,28 +212,40 @@ int DoubleArrayTrie::find_begin(vector<Node> siblings){
 
 }
 
-int DoubleArrayTrie::prefix_search(string to_search){
-    vector<string> to_searchl = cut(to_search, false);
-    string word = to_searchl[0];
-    int p = vocab[word];
+vector<string> DoubleArrayTrie::common_prefix_search(string to_search){
+    vector<int> index = prefix_search(to_search);
+    wstring seg = string_to_wstring(to_search);
+    for (int i: index){
+        wcout << i << endl;
+        wcout << seg.substr(0, i) << endl;
+    }
+}
+
+vector<int> DoubleArrayTrie::prefix_search(string to_search){
+    wstring seg = string_to_wstring(to_search);
+    wchar_t word = seg[0];
+    int code = vocab[word];
+    
+    int p = code;
     int b = 0;
-    string result = word;
-    for(int i=1; i<to_searchl.size(); i++){
-        word = to_searchl[i];
-        b = abs(base[p]) + vocab[word];
+    vector<int> index;
+    for(int i=1; i<seg.size(); i++){
+        word = seg[i];
+        code = vocab[word];
+
+        b = abs(base[p]) + code;
         int bp = base[p];
-        if (bp < 0) { 
-            cout << result << endl;
+        if (bp < 0) {
+            index.push_back(i);
         }
-        cout << check[b] << " " << p << " " << b << endl;
-        if (check[b] == p || abs(base[check[b]]) + vocab[word] == b){
+        if ((check[b] == p || chari[b] == code )&& code != 0){
             p = b;
-            result += word;
             continue;
         }
-        return 0;
+        return index;
     }
-    cout << result << endl;
+    index.push_back(seg.size());
+    return index;
 }
 
 void DoubleArrayTrie::loop_map(unordered_map<string, int> map){
@@ -244,23 +265,26 @@ vector<string> read(string file_name){
 }
 
 
-void test(){
-    vector<string> company = read_file("/home/yanwii/SocialCredits/CompanyName/company_names.txt");
-    pause();
-    cout << company.size() << endl;
-    pause();
-}
+
+
 
 int main(){
     DoubleArrayTrie dat;
-    vector<string> company = read_file("test");
-    // vector<string> company = {"he" ,"her", "his", "se", "she", "hers"};
-    // vector<string> company = {"阿拉伯人去哪里", "重庆人啊去哪里"};
+    // vector<wstring> company = read_file("test");
+    // vector<wstring> company = read_file("/home/ubuntu/SocialCredits/CompanyName/company_names.txt");
+    vector<wstring> company = {L"he" ,L"her", L"his", L"se", L"she", L"hers", L"sers"};
+    // vector<wstring> company = {L"阿拉伯人", L"阿拉伯"};
     time_t start, stop;
     start = time(NULL);
     dat.make_ac(company);
     stop = time(NULL);
-    cout << "cost: " << stop - start << endl; 
-    dat.prefix_search("hers");
+    // cout << "cost: " << stop - start << endl; 
+    dat.common_prefix_search("hers");
+
+    fstream file;
+    file.open("dat.dat", ios::out|ios::binary);
+    file.write((char *)&dat, sizeof(DoubleArrayTrie));
+    file.close();
+
 }
 
