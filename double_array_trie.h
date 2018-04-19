@@ -10,6 +10,8 @@ using namespace std;
 typedef struct Siblings{
     int code;
     int parent_state;
+    wstring seg;
+    int col;
     wstring word;
 } Node;
 
@@ -36,7 +38,8 @@ class DoubleArrayTrie{
     int get_parent_state(wstring);
     void print();
     cut_seg_def cut_seg(vector<string> &);
-    siblings_def fetch_siblings(int, vector<wstring>&);
+    void fetch_siblings(vector<Node>&, vector<vector<Node>>&);
+    vector<Node> fetch_siblings(vector<wstring>&);
     // int base[100] = {0};
     // int check[100] = {0};
     vector<int> base;
@@ -48,6 +51,6 @@ class DoubleArrayTrie{
     int alloc_size = 50000000;
     int max_col = 0;
     int max_index = 0;
-    unordered_map<wchar_t, int> vocab;
+    unordered_map<wstring, int> vocab;
 };
 #endif

@@ -66,32 +66,27 @@ void DoubleArrayTrie::make_ac(vector<wstring>& list){
     int col = 0;
     int max_col = 40;
     clock_t start, stop;
-    while (col < max_col){
+    // first collection
+    vector<Node> siblings = fetch_siblings(list);
+    vector<vector<Node>> queue;
+    queue.push_back(siblings);
+    STL_clear(siblings);
+
+    while (!queue.empty()){
         // Loop the segments then adding word to d while 
         // constructing the base & check.
-        siblings_def siblings_map = fetch_siblings(col, list);
-
-        if (col == 0) { col++; continue; }
-        if (siblings_map.empty()) { break; }
-        int local_max_index = 0;
-        for (auto it=siblings_map.begin(); it!=siblings_map.end(); it++){
-            wstring parent_word = it->first;
-            vector<Node> siblings = it->second;
-            start = clock();
-            int begin = find_begin(siblings);
-            for (int i=0; i<siblings.size(); i++){
-                Node node = siblings[i];
-                int code = node.code;
-                int t = code + begin;
-                int s = node.parent_state;
-                check[t] = s;
-                chari[t] = code;
-                // charl[t] = word;
-                base[s] = begin;
-            }
+        siblings = queue.back();
+        queue.pop_back();
+        fetch_siblings(siblings, queue);
+        int begin = find_begin(siblings);
+        for (Node node:siblings){
+            int code = node.code;
+            int t = begin + code;
+            int s = node.parent_state;
+            check[t] = s;
+            chari[t] = code;
+            base[s] = t;
         }
-        col ++;
-        // wcout << col << endl;
     }
     // perfct list base
     // if the word is the end of a segment but there are words atfer it(e.g.: he her):
@@ -100,7 +95,7 @@ void DoubleArrayTrie::make_ac(vector<wstring>& list){
     //  base[i] = -i
     for (int i=0; i<list.size(); i++){
         wstring seg = list[i];
-        wchar_t word = seg[0];
+        wstring word = seg.substr(0, 1);
         int code = vocab[word];
         int p = code;
         int b = 0;
@@ -140,7 +135,7 @@ void DoubleArrayTrie::print(){
 }
 
 int DoubleArrayTrie::get_parent_state(wstring seg){
-    wchar_t word = seg[0];
+    wstring word = seg.substr(0, 1);
     int code = vocab[word];
     int p = code;
     int b = 0;
@@ -152,33 +147,24 @@ int DoubleArrayTrie::get_parent_state(wstring seg){
     return p;
 }
 
-siblings_def DoubleArrayTrie::fetch_siblings(int col, vector<wstring> &segments){
+vector<Node> DoubleArrayTrie::fetch_siblings(vector<wstring> &segments){
     // collect siblings and figure out begin
-    siblings_def siblings_map;
-    wstring parent_seg = L"";
-    for(int i=0; i<segments.size(); i++){
+    vector<Node> siblings;
+    for (int i=0; i<segments.size(); i++){
         wstring seg = segments[i];
-        if (col >= seg.size()) { continue; }
-        wchar_t word = seg[col];
+        wstring word = seg.substr(0, 1);
         vocab[word] = vocab[word] == 0 ? vocab[word] = ++nums_word : vocab[word];
-        int code = vocab[word];
-
-        if (col == 0) { 
-            check[code] = 1;
-            chari[code] = code;
-            continue;
-        } else {
-            wstring parent_word = to_wstring(seg[col - 1]);
-            Node node;
-            for (int i=0; i<col; i++) { parent_seg += seg[i];}
-            node.code = code;
-            node.word = word;
-            node.parent_state = get_parent_state(parent_seg);
-            siblings_map[parent_word].push_back(node);
-            parent_seg = L"";
-        }
+        Node node;
+        node.word = word;
+        node.seg = seg;
+        node.code = vocab[word];
+        node.col = 1;
+        siblings.push_back(node);
     }
-    return siblings_map;
+}
+
+void DoubleArrayTrie::fetch_siblings(vector<Node>&, vector<vector<Node>>& queue){
+
 }
 
 int DoubleArrayTrie::find_begin(vector<Node> siblings){
@@ -223,7 +209,7 @@ vector<string> DoubleArrayTrie::common_prefix_search(string& to_search){
 
 vector<int> DoubleArrayTrie::prefix_search(string& to_search){
     wstring seg = string_to_wstring(to_search);
-    wchar_t word = seg[0];
+    wstring word = seg.substr(0, 1);
     int code = vocab[word];
     
     int p = code;
