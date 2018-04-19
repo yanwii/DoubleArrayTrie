@@ -19,6 +19,7 @@ typedef vector<vector<string>> cut_seg_def;
 class DoubleArrayTrie{
     private:
     vector<int> prefix_search(string &);
+    vector<int> prefix_search(wstring &);
     public:
     DoubleArrayTrie(){};
     ~DoubleArrayTrie(){};
@@ -28,9 +29,12 @@ class DoubleArrayTrie{
 
     void make_ac(vector<wstring> &);
     void make_ac(vector<string> &);
+    bool is_valid(int, string);
     int find_begin(vector<Node>);
     vector<string> common_prefix_search(string&);
     void loop_map(unordered_map<wchar_t, int>);
+    void search(wstring);
+    int find_failure(const wchar_t&, int);
     void init_storage();
     void reallocate_storage(int);
     int get_parent_state(wstring);
@@ -42,6 +46,7 @@ class DoubleArrayTrie{
     vector<int> base;
     vector<int> check;
     vector<int> chari;
+    vector<int> failure;
 
     int next_check_pos = 0;
     int nums_word = 0;

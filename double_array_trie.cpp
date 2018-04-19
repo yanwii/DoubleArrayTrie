@@ -47,6 +47,7 @@ void DoubleArrayTrie::init_storage(){
     base = vector<int> (alloc_size, 0);
     check = vector<int> (alloc_size, 0);
     chari = vector<int> (alloc_size, 0);
+    failure = vector<int> (alloc_size, 0);
 }
 
 void DoubleArrayTrie::make_ac(vector<string>& list){
@@ -102,22 +103,49 @@ void DoubleArrayTrie::make_ac(vector<wstring>& list){
         wstring seg = list[i];
         wchar_t word = seg[0];
         int code = vocab[word];
+        check[code] = 0;
         int p = code;
         int b = 0;
         int bp = 0;
+        // make failure
         for (int j=1; j<seg.size(); j++){
             word = seg[j];
             code = vocab[word];
             b = abs(base[p]) + code;
+            failure[b] = find_failure(word, failure[p]);
             p = b;
         }
+        // perfect list base
         bp = base[p];
         if (bp > 0) { base[p] = -base[p];}
         else if (bp == 0) { base[p] = -1;} 
     }
     STL_clear(list);
-    // print();
+    print();
 }
+
+void DoubleArrayTrie::search(wstring seg){
+    vector<int> result;
+    for (int i=1; i < seg.size()-1; i++){
+        wstring to_search = seg.substr(i, seg.size());
+        vector<int> tmp = prefix_search(to_search);
+        for (int index:tmp) { wcout << seg.substr(i, index) << endl;}
+    }
+}
+
+int DoubleArrayTrie::find_failure(const wchar_t& word, int bp){
+    int code = vocab[word];
+    if (code == 0) { return 0;}
+    /*
+
+    */
+    int b = bp + code;
+    if (chari[b] == code) {
+        return abs(base[b]);
+    }
+    return 0;
+}
+
 
 template<class T>
 void DoubleArrayTrie::STL_clear(T& obj){
@@ -127,16 +155,18 @@ void DoubleArrayTrie::STL_clear(T& obj){
 
 
 void DoubleArrayTrie::print(){
-    for (int i=0; i<20 ; i++){
-        cout << i;
-        cout << " ";
-        cout << base[i];
-        cout << " ";
-        cout << check[i];
-        cout << " ";
-        cout << chari[i] << endl;
+    for (int i=0; i<11; i++){
+        wcout << i;
+        wcout << " ";
+        wcout << base[i];
+        wcout << " ";
+        wcout << check[i];
+        wcout << " ";
+        wcout << chari[i];
+        wcout << " ";
+        wcout << failure[i] << endl;
     }
-    cout << "-------------" << endl;
+    wcout << "-------------" << endl;
 }
 
 int DoubleArrayTrie::get_parent_state(wstring seg){
@@ -222,32 +252,48 @@ vector<string> DoubleArrayTrie::common_prefix_search(string& to_search){
 }
 
 vector<int> DoubleArrayTrie::prefix_search(string& to_search){
-    wstring seg = string_to_wstring(to_search);
+    wstring to_search_w = string_to_wstring(to_search);
+    return prefix_search(to_search_w);
+}
+
+vector<int> DoubleArrayTrie::prefix_search(wstring& seg){
     wchar_t word = seg[0];
     int code = vocab[word];
-    
     int p = code;
     int b = 0;
     vector<int> index;
-    wstring result = seg.substr(0, 1);
+    string path = to_string(code);
+    if (code == 0) { return index; }
     for(int i=1; i<seg.size(); i++){
         word = seg[i];
         code = vocab[word];
 
         b = abs(base[p]) + code;
         int bp = base[p];
-        if (bp < 0 && seg.substr(0, i) == result) {
+        if (bp < 0 && is_valid(p, path)) {
             index.push_back(i);
         }
         if ((check[b] == p || chari[b] == code )&& code != 0){
             p = b;
-            result += word;
+            path += "_" + to_string(b);
             continue;
         }
         return index;
     }
-    index.push_back(seg.size());
+    if (is_valid(p, path)){
+        index.push_back(seg.size());
+    }
     return index;
+}
+
+bool DoubleArrayTrie::is_valid(int p, string path){
+    string check_path = to_string(p);
+    while (check[p] != 0){
+        p = check[p];
+        check_path = to_string(p) + "_" + check_path;
+    }
+    if (path == check_path) { return true;}
+    else { return false; }
 }
 
 void DoubleArrayTrie::loop_map(unordered_map<wchar_t, int> map){
@@ -267,25 +313,22 @@ vector<string> read(string file_name){
 }
 
 
-
-
 int main(){
     locale::global(locale(""));
     wcout.imbue(locale(""));
-    string to_search = "阿拉伯人";
-    wstring b = string_to_wstring(to_search);
+    string to_search = "德福木工刀具（天津）有限公司sss";
     DoubleArrayTrie dat;
-    // vector<wstring> company = read_file("test");
+    vector<wstring> company = read_file("test");
     // vector<wstring> company = read_file("/home/ubuntu/SocialCredits/CompanyName/company_names.txt");
-    // vector<wstring> company = {L"he" ,L"her", L"his", L"se", L"she", L"hers", L"sers"};
-    vector<wstring> company = {L"n拉伯", L"阿拉伯人", L"阿拉伯"};
+    // vector<wstring> company = {L"he", L"his", L"she", L"hers"};
+    // vector<wstring> company = {L"n拉伯", L"阿拉伯人", L"阿拉伯"};
     time_t start, stop;
     start = time(NULL);
     dat.make_ac(company);
     stop = time(NULL);
     // cout << "cost: " << stop - start << endl; 
-    // dat.prefix_search(to_search);
     dat.common_prefix_search(to_search);
+    dat.search(L"usshi阿拉伯shers");
 
 }
 
