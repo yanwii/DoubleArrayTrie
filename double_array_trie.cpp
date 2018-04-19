@@ -68,16 +68,19 @@ void DoubleArrayTrie::make_ac(vector<wstring>& list){
     clock_t start, stop;
     // first collection
     vector<Node> siblings = fetch_siblings(list);
-    vector<vector<Node>> queue;
+    deque<vector<Node>> queue;
     queue.push_back(siblings);
     STL_clear(siblings);
 
     while (!queue.empty()){
         // Loop the segments then adding word to d while 
         // constructing the base & check.
-        siblings = queue.back();
-        queue.pop_back();
+        siblings = queue.front();
+        queue.pop_front();
+        wcout << "start collect" << endl;
         fetch_siblings(siblings, queue);
+        wcout << "done" << endl;
+
         int begin = find_begin(siblings);
         for (Node node:siblings){
             int code = node.code;
@@ -85,8 +88,10 @@ void DoubleArrayTrie::make_ac(vector<wstring>& list){
             int s = node.parent_state;
             check[t] = s;
             chari[t] = code;
-            base[s] = t;
+            base[s] = begin;
         }
+        print();
+
     }
     // perfct list base
     // if the word is the end of a segment but there are words atfer it(e.g.: he her):
@@ -111,7 +116,8 @@ void DoubleArrayTrie::make_ac(vector<wstring>& list){
         else if (bp == 0) { base[p] = -1;} 
     }
     STL_clear(list);
-    // print();
+    print();
+    loop_map(vocab);
 }
 
 template<class T>
@@ -123,24 +129,24 @@ void DoubleArrayTrie::STL_clear(T& obj){
 
 void DoubleArrayTrie::print(){
     for (int i=0; i<20 ; i++){
-        cout << i;
-        cout << " ";
-        cout << base[i];
-        cout << " ";
-        cout << check[i];
-        cout << " ";
-        cout << chari[i] << endl;
+        wcout << i;
+        wcout << " ";
+        wcout << base[i];
+        wcout << " ";
+        wcout << check[i];
+        wcout << " ";
+        wcout << chari[i] << endl;
     }
-    cout << "-------------" << endl;
+    wcout << "-------------" << endl;
 }
 
 int DoubleArrayTrie::get_parent_state(wstring seg){
-    wstring word = seg.substr(0, 1);
+    wstring word = wstring(1, seg[0]);
     int code = vocab[word];
     int p = code;
     int b = 0;
     for(int i=1; i<seg.size(); i++){
-        word = seg[i];
+        word = wstring(1, seg[i]);
         code = vocab[word];
         p = abs(base[p]) + code;
     }
@@ -152,20 +158,52 @@ vector<Node> DoubleArrayTrie::fetch_siblings(vector<wstring> &segments){
     vector<Node> siblings;
     for (int i=0; i<segments.size(); i++){
         wstring seg = segments[i];
-        wstring word = seg.substr(0, 1);
+        wstring word = wstring(1, seg[0]);
         vocab[word] = vocab[word] == 0 ? vocab[word] = ++nums_word : vocab[word];
+
         Node node;
-        node.word = word;
         node.seg = seg;
         node.code = vocab[word];
-        node.col = 1;
+        node.col = 0;
+        node.word = word;
+
+        check[node.code] = 1;
+        chari[node.code] = node.code;
         siblings.push_back(node);
     }
+    return siblings;
 }
 
-void DoubleArrayTrie::fetch_siblings(vector<Node>&, vector<vector<Node>>& queue){
-
-}
+void DoubleArrayTrie::fetch_siblings(vector<Node>& parent_nodes, deque<vector<Node>>& queue){
+    siblings_def siblings_map;
+    unordered_map <wstring, int> dup;
+    for (Node pnode:parent_nodes){
+        int pcol = pnode.col;
+        if (pcol + 1 >= pnode.seg.size()) { continue; }
+        wstring parent_word = pnode.word;
+        
+        Node node;
+        node.seg = pnode.seg;
+        node.col = pcol + 1;
+        node.word = wstring(1, node.seg[node.col]);
+        vocab[node.word] = vocab[node.word] == 0 ? vocab[node.word] = ++nums_word : vocab[node.word];        
+        node.code = vocab[node.word];
+        wstring parent_seg = L"";
+        for (int i=0; i<node.col; i++) { parent_seg += wstring(1, node.seg[i]); }
+        wcout << node.word;
+        wcout << " ";
+        wcout << parent_seg; 
+        node.parent_state = get_parent_state(parent_seg);
+        wcout << " ";
+        wcout << node.parent_state << endl;
+        if (dup[parent_seg] != 0){ continue; }
+        dup[parent_seg] = 1;
+        siblings_map[parent_word].push_back(node);
+    }
+    for (auto it=siblings_map.begin(); it!=siblings_map.end(); it++){
+        queue.push_back(it->second);
+    }
+}   
 
 int DoubleArrayTrie::find_begin(vector<Node> siblings){
     int pos = siblings[0].code + 1 > max_index ? siblings[0].code + 1: max_index;
@@ -236,7 +274,7 @@ vector<int> DoubleArrayTrie::prefix_search(string& to_search){
     return index;
 }
 
-void DoubleArrayTrie::loop_map(unordered_map<wchar_t, int> map){
+void DoubleArrayTrie::loop_map(unordered_map<wstring, int> map){
     for (auto it=map.begin(); it!=map.end(); it++){
         wcout << it->first << ":" << it->second << endl;
     }
@@ -258,8 +296,9 @@ vector<string> read(string file_name){
 int main(){
     locale::global(locale(""));
     wcout.imbue(locale(""));
-    string to_search = "阿拉伯人";
+    string to_search = "n拉伯";
     wstring b = string_to_wstring(to_search);
+
     DoubleArrayTrie dat;
     // vector<wstring> company = read_file("test");
     // vector<wstring> company = read_file("/home/ubuntu/SocialCredits/CompanyName/company_names.txt");

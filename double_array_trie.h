@@ -32,13 +32,13 @@ class DoubleArrayTrie{
     void make_ac(vector<string> &);
     int find_begin(vector<Node>);
     vector<string> common_prefix_search(string&);
-    void loop_map(unordered_map<wchar_t, int>);
+    void loop_map(unordered_map<wstring, int>);
     void init_storage();
     void reallocate_storage(int);
     int get_parent_state(wstring);
     void print();
     cut_seg_def cut_seg(vector<string> &);
-    void fetch_siblings(vector<Node>&, vector<vector<Node>>&);
+    void fetch_siblings(vector<Node>&, deque<vector<Node>>&);
     vector<Node> fetch_siblings(vector<wstring>&);
     // int base[100] = {0};
     // int check[100] = {0};
