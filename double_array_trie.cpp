@@ -47,7 +47,6 @@ void DoubleArrayTrie::init_storage(){
     base = vector<int> (alloc_size, 0);
     check = vector<int> (alloc_size, 0);
     chari = vector<int> (alloc_size, 0);
-    failure = vector<int> (alloc_size, 0);
 }
 
 void DoubleArrayTrie::make_ac(vector<string>& list){
@@ -70,16 +69,17 @@ void DoubleArrayTrie::make_ac(vector<wstring>& list){
     while (col < max_col){
         // Loop the segments then adding word to d while 
         // constructing the base & check.
-        siblings_def siblings_map = fetch_siblings(col, list);
+        sibling_clusters_def siblings_map = fetch_siblings(col, list);
 
         if (col == 0) { col++; continue; }
         if (siblings_map.empty()) { break; }
         int local_max_index = 0;
         for (auto it=siblings_map.begin(); it!=siblings_map.end(); it++){
-            wstring parent_word = it->first;
+            int cluster = it->first;
             vector<Node> siblings = it->second;
             start = clock();
             int begin = find_begin(siblings);
+            wcout << "cluster: " << cluster << endl;
             for (int i=0; i<siblings.size(); i++){
                 Node node = siblings[i];
                 int code = node.code;
@@ -89,10 +89,13 @@ void DoubleArrayTrie::make_ac(vector<wstring>& list){
                 chari[t] = code;
                 // charl[t] = word;
                 base[s] = begin;
+                wcout << node.word << " " << begin << " " << code << " " << s << endl;
             }
         }
+        wcout << col << endl;
+        print();
+        wcout << "----------" << endl;
         col ++;
-        // wcout << col << endl;
     }
     // perfct list base
     // if the word is the end of a segment but there are words atfer it(e.g.: he her):
@@ -112,7 +115,6 @@ void DoubleArrayTrie::make_ac(vector<wstring>& list){
             word = seg[j];
             code = vocab[word];
             b = abs(base[p]) + code;
-            failure[b] = find_failure(word, failure[p]);
             p = b;
         }
         // perfect list base
@@ -122,6 +124,7 @@ void DoubleArrayTrie::make_ac(vector<wstring>& list){
     }
     STL_clear(list);
     print();
+    loop_map(vocab);
 }
 
 void DoubleArrayTrie::search(wstring seg){
@@ -155,16 +158,14 @@ void DoubleArrayTrie::STL_clear(T& obj){
 
 
 void DoubleArrayTrie::print(){
-    for (int i=0; i<11; i++){
+    for (int i=0; i<20; i++){
         wcout << i;
         wcout << " ";
         wcout << base[i];
         wcout << " ";
         wcout << check[i];
         wcout << " ";
-        wcout << chari[i];
-        wcout << " ";
-        wcout << failure[i] << endl;
+        wcout << chari[i] << endl;
     }
     wcout << "-------------" << endl;
 }
@@ -182,10 +183,14 @@ int DoubleArrayTrie::get_parent_state(wstring seg){
     return p;
 }
 
-siblings_def DoubleArrayTrie::fetch_siblings(int col, vector<wstring> &segments){
+sibling_clusters_def DoubleArrayTrie::fetch_siblings(int col, vector<wstring> &segments){
     // collect siblings and figure out begin
-    siblings_def siblings_map;
-    wstring parent_seg = L"";
+    // siblings_def siblings_map;
+    
+    sibling_clusters_def sibling_clusters;
+    unordered_map<int, int> cluster_map;
+    unordered_map<wstring, int> dup;
+
     for(int i=0; i<segments.size(); i++){
         wstring seg = segments[i];
         if (col >= seg.size()) { continue; }
@@ -198,17 +203,28 @@ siblings_def DoubleArrayTrie::fetch_siblings(int col, vector<wstring> &segments)
             chari[code] = code;
             continue;
         } else {
-            wstring parent_word = to_wstring(seg[col - 1]);
+            wstring parent_seg = L"";
+            wstring parent_word = wstring(1, seg[col - 1]);
             Node node;
-            for (int i=0; i<col; i++) { parent_seg += seg[i];}
+
+            for (int j=0; j<col; j++) { parent_seg += seg[j];}
+
             node.code = code;
             node.word = word;
+            wstring key = parent_seg + word;
+            if (dup[key] != 0 ) { parent_seg = L""; wcout << key << endl; continue; };
+            dup[key] = 1;
+
             node.parent_state = get_parent_state(parent_seg);
-            siblings_map[parent_word].push_back(node);
+            
+            int cluster = cluster_map[code];
+            cluster_map[code] = cluster_map[code] + 1;
+            sibling_clusters[cluster].push_back(node);            
+            // siblings_map[parent_word].push_back(node);
             parent_seg = L"";
         }
     }
-    return siblings_map;
+    return sibling_clusters;
 }
 
 int DoubleArrayTrie::find_begin(vector<Node> siblings){
@@ -262,7 +278,7 @@ vector<int> DoubleArrayTrie::prefix_search(wstring& seg){
     int p = code;
     int b = 0;
     vector<int> index;
-    string path = to_string(code);
+    wstring result(1, word);
     if (code == 0) { return index; }
     for(int i=1; i<seg.size(); i++){
         word = seg[i];
@@ -270,19 +286,18 @@ vector<int> DoubleArrayTrie::prefix_search(wstring& seg){
 
         b = abs(base[p]) + code;
         int bp = base[p];
-        if (bp < 0 && is_valid(p, path)) {
+        int cb = check[b];
+        if (bp < 0) {
             index.push_back(i);
         }
-        if ((check[b] == p || chari[b] == code )&& code != 0){
+        if (cb == p){
             p = b;
-            path += "_" + to_string(b);
+            result += word;
             continue;
         }
         return index;
     }
-    if (is_valid(p, path)){
-        index.push_back(seg.size());
-    }
+    index.push_back(seg.size());
     return index;
 }
 
@@ -316,19 +331,19 @@ vector<string> read(string file_name){
 int main(){
     locale::global(locale(""));
     wcout.imbue(locale(""));
-    string to_search = "德福木工刀具（天津）有限公司sss";
+    string to_search = "阿拉伯人";
     DoubleArrayTrie dat;
-    vector<wstring> company = read_file("test");
+    // vector<wstring> company = read_file("test.text");
     // vector<wstring> company = read_file("/home/ubuntu/SocialCredits/CompanyName/company_names.txt");
-    // vector<wstring> company = {L"he", L"his", L"she", L"hers"};
-    // vector<wstring> company = {L"n拉伯", L"阿拉伯人", L"阿拉伯"};
+    // vector<wstring> company = {L"he", L"his", L"she", L"hers", L"her"};
+    vector<wstring> company = {L"n拉伯", L"阿拉伯人", L"阿拉我去人山", L"阿拉换拉可把"};
     time_t start, stop;
     start = time(NULL);
     dat.make_ac(company);
     stop = time(NULL);
     // cout << "cost: " << stop - start << endl; 
     dat.common_prefix_search(to_search);
-    dat.search(L"usshi阿拉伯shers");
+    // dat.search(L"阿拉伯人");
 
 }
 

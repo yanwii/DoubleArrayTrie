@@ -15,6 +15,7 @@ typedef struct Siblings{
 
 typedef unordered_map<wstring, vector<Node>> siblings_def;
 typedef vector<vector<string>> cut_seg_def;
+typedef unordered_map<int, vector<Node>> sibling_clusters_def;
 
 class DoubleArrayTrie{
     private:
@@ -40,13 +41,12 @@ class DoubleArrayTrie{
     int get_parent_state(wstring);
     void print();
     cut_seg_def cut_seg(vector<string> &);
-    siblings_def fetch_siblings(int, vector<wstring>&);
+    sibling_clusters_def fetch_siblings(int, vector<wstring>&);
     // int base[100] = {0};
     // int check[100] = {0};
     vector<int> base;
     vector<int> check;
     vector<int> chari;
-    vector<int> failure;
 
     int next_check_pos = 0;
     int nums_word = 0;
