@@ -9,7 +9,6 @@ using namespace std;
 
 typedef struct Siblings{
     int code;
-    int parent_state;
     wstring seg;
     int col;
     wstring word;
@@ -20,7 +19,8 @@ typedef vector<vector<string>> cut_seg_def;
 
 class DoubleArrayTrie{
     private:
-    vector<int> prefix_search(string &);
+    vector<int> prefix_search(string&);
+    vector<int> prefix_search(const wstring&);
     public:
     DoubleArrayTrie(){};
     ~DoubleArrayTrie(){};
@@ -33,13 +33,15 @@ class DoubleArrayTrie{
     int find_begin(vector<Node>);
     vector<string> common_prefix_search(string&);
     void loop_map(unordered_map<wstring, int>);
+    vector<string> search(const wstring&);
+    vector<string> search(string&);
     void init_storage();
     void reallocate_storage(int);
     int get_parent_state(wstring);
     void print();
-    cut_seg_def cut_seg(vector<string> &);
+    cut_seg_def cut_seg(vector<string>&);
     void fetch_siblings(vector<Node>&, deque<vector<Node>>&);
-    vector<Node> fetch_siblings(vector<wstring>&);
+    void fetch_siblings(vector<wstring>&, deque<vector<Node>>&);
     // int base[100] = {0};
     // int check[100] = {0};
     vector<int> base;
