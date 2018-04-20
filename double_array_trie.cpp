@@ -46,7 +46,6 @@ void DoubleArrayTrie::reallocate_storage(int new_size){
 void DoubleArrayTrie::init_storage(){
     base = vector<int> (alloc_size, 0);
     check = vector<int> (alloc_size, 0);
-    chari = vector<int> (alloc_size, 0);
 }
 
 void DoubleArrayTrie::make_ac(vector<string>& list){
@@ -83,7 +82,6 @@ void DoubleArrayTrie::make_ac(vector<wstring>& list){
             int t = begin + code;
             int s = get_parent_state(node.seg.substr(0, node.col));
             check[t] = s;
-            chari[t] = code;
             base[s] = begin;
         }
     }
@@ -110,9 +108,8 @@ void DoubleArrayTrie::make_ac(vector<wstring>& list){
         if (bp > 0) { base[p] = -base[p];}
         else if (bp == 0) { base[p] = -1;} 
     }
+    STL_clear(queue);
     STL_clear(list);
-    print();
-    loop_map(vocab);
 }
 
 template<class T>
@@ -129,8 +126,7 @@ void DoubleArrayTrie::print(){
         wcout << base[i];
         wcout << " ";
         wcout << check[i];
-        wcout << " ";
-        wcout << chari[i] << endl;
+        wcout << " " << endl;
     }
     wcout << "-------------" << endl;
 }
@@ -155,9 +151,7 @@ void DoubleArrayTrie::fetch_siblings(vector<wstring> &segments, deque<vector<Nod
         wstring pword = wstring(1, seg[0]);
         vocab[pword] = vocab[pword] == 0 ? ++nums_word : vocab[pword];
         int pcode = vocab[pword];
-
         check[pcode] = 1;
-        chari[pcode] = pcode;
 
         if (seg.size() == 1) { continue; }
         Node node;
@@ -199,7 +193,7 @@ void DoubleArrayTrie::fetch_siblings(vector<Node>& siblings, deque<vector<Node>>
 }
 
 
-int DoubleArrayTrie::find_begin(vector<Node> siblings){
+int DoubleArrayTrie::find_begin(vector<Node>& siblings){
     int pos = siblings[0].code + 1 > max_index ? siblings[0].code + 1: max_index;
     bool is_found = true;
     int begin = 0;
@@ -251,7 +245,6 @@ vector<string> DoubleArrayTrie::common_prefix_search(string& to_search){
         wcout << seg.substr(0, i) << endl;
     }
     STL_clear(index);
-    cout << "done" << endl;
     return vector<string> {};
 }
 
@@ -261,7 +254,6 @@ vector<int> DoubleArrayTrie::prefix_search(string& to_search){
 }
 
 vector<int> DoubleArrayTrie::prefix_search(const wstring& seg){
-    wcout << "search " << seg << endl;
     wstring word = seg.substr(0, 1);
     int code = vocab[word];
     int p = code;

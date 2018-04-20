@@ -28,9 +28,9 @@ class DoubleArrayTrie{
     template<class T>
     void STL_clear(T&);
 
-    void make_ac(vector<wstring> &);
-    void make_ac(vector<string> &);
-    int find_begin(vector<Node>);
+    void make_ac(vector<wstring>&);
+    void make_ac(vector<string>&);
+    int find_begin(vector<Node>&);
     vector<string> common_prefix_search(string&);
     void loop_map(unordered_map<wstring, int>);
     vector<string> search(const wstring&);
@@ -46,7 +46,6 @@ class DoubleArrayTrie{
     // int check[100] = {0};
     vector<int> base;
     vector<int> check;
-    vector<int> chari;
 
     int next_check_pos = 0;
     int nums_word = 0;
