@@ -46,6 +46,9 @@
         "ratio": "cpp",
         "stdexcept": "cpp",
         "type_traits": "cpp",
-        "typeinfo": "cpp"
-    }
+        "typeinfo": "cpp",
+        "unordered_map": "cpp"
+    },
+    "git.ignoreLimitWarning": true,
+    "python.linting.enabled": false
 }
