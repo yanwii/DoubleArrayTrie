@@ -20,7 +20,7 @@ class Dat(object):
 
     def format_output(self, result, to_search):
         if isinstance(to_search, str):
-            to_search.decode("utf-8")
+            to_search = to_search.decode("utf-8")
         entities = []
         for index_s in result:
             try:
