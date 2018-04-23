@@ -12,8 +12,15 @@ using namespace std;
 
 void DoubleArrayTrie::add_word(string seg){
     wstring wseg = string_to_wstring(seg);
+    num_chars += wseg.size();
     segments.push_back(wseg);
 }
+
+void DoubleArrayTrie::add_word(const wstring& wseg){
+    num_chars += wseg.size();
+    segments.push_back(wseg);
+}
+
 
 void DoubleArrayTrie::add_words(vector<string> words){
     STL_clear(segments);
@@ -29,19 +36,27 @@ void DoubleArrayTrie::add_words(vector<wstring> wwords){
 }
 
 void DoubleArrayTrie::reallocate_storage(int new_size){
-    cout << "reallocate" << endl;
-    for (int i=0; i<(new_size - alloc_size); i++){
-        base.push_back(0);
-        check.push_back(0);
-    }
-    alloc_size = new_size;
+    vector<int> pad(new_size - base.size() + 1);
+    base.insert(base.end(), pad.begin(), pad.end());
+    check.insert(check.end(), pad.begin(), pad.end());
+    alloc_size = new_size + 1;
 }
 
 void DoubleArrayTrie::init_storage(){
+    STL_clear(base);
+    STL_clear(check);
+    STL_clear(vocab);
+    num_words = 0;
+    num_chars = 0;
+    max_index = 0;
+
     base = vector<int> (alloc_size, 0);
     check = vector<int> (alloc_size, 0);
 }
 
+void DoubleArrayTrie::set_alloc(int size){
+    alloc_size = size;
+}
 
 void DoubleArrayTrie::make(){
     // storage allocation
@@ -49,15 +64,14 @@ void DoubleArrayTrie::make(){
 
     // first collection
     deque<vector<Node>> queue;
+    
     fetch_siblings(segments, queue);
-
     while (!queue.empty()){
         // loop the node while 
         // constructing the base & check.
         vector<Node> siblings = queue.front();
         queue.pop_front();
         fetch_siblings(siblings, queue);
-
         int begin = find_begin(siblings);
         for (Node node:siblings){
             int code = node.code;
@@ -118,6 +132,8 @@ void DoubleArrayTrie::fetch_siblings(vector<wstring> &segments, deque<vector<Nod
         wstring pword = wstring(1, seg[0]);
         vocab[pword] = vocab[pword] == 0 ? ++num_words : vocab[pword];
         int pcode = vocab[pword];
+        // reallocate storage
+        if (pcode >= alloc_size) { reallocate_storage(pcode); }
         check[pcode] = 1;
 
         if (seg.size() == 1) { continue; }
@@ -169,16 +185,14 @@ int DoubleArrayTrie::find_begin(vector<Node>& siblings){
         for (Node node: siblings){
             begin = pos - siblings[0].code;
             int code = node.code;
-            if (code + begin >= alloc_size) { reallocate_storage(code + begin); throw;}
+            if (code + begin >= alloc_size) { reallocate_storage(code + begin); }
             if (base[code + begin] !=0 || check[code + begin] !=0){
                 is_found = false;
                 break;
-            } else if (first == 0){
-                max_index = pos;
-                first = 1;
             }
         }
         if (!is_found){
+            max_index = pos;
             pos++;
             is_found = true;
         } else {
@@ -260,24 +274,24 @@ vector<int> DoubleArrayTrie::prefix_search(const wstring& seg){
 int main(){
     locale::global(locale(""));
     wcout.imbue(locale(""));
-    string to_search = "阿拉伯人";
+    string to_search = "阿拉伯人河北捷成建设造价咨询有限公司哈去";
     wstring b = string_to_wstring(to_search);
 
     DoubleArrayTrie dat;
-    // vector<wstring> company = read_file("test");
+    vector<wstring> company = read_file("test");
     // vector<wstring> company = read_file("/home/ubuntu/SocialCredits/CompanyName/company_names.txt");
     // vector<wstring> company = {L"he" ,L"her", L"his", L"se", L"she", L"hers", L"sers"};
     // vector<wstring> company = {L"n拉伯", L"阿拉伯人", L"阿拉伯"};
-    // dat.add_words(company);
-
-    dat.add_word("阿拉伯");
-    dat.add_word("阿拉伯人");
+    for(wstring wseg: company){
+        dat.add_word(wseg);
+    }
     time_t start, stop;
     start = time(NULL);
     dat.make();
     stop = time(NULL);
     wcout << "cost: " << stop - start << endl; 
-    dat.search(to_search);
+    vector<string> result = dat.search(to_search);
+    for (string index: result) { wcout<< string_to_wstring(index) << endl;}
 }
 
 

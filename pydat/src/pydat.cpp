@@ -19,7 +19,6 @@ BOOST_PYTHON_MODULE(pydat){
         .def("search", search_entry)
         .def("add_word", add_word_entry)
         .def("make", &DoubleArrayTrie::make)
-        .def("common_prefix_search", &DoubleArrayTrie::common_prefix_search)
-        .def_readwrite("num_words", &DoubleArrayTrie::num_words);
-        
+        .def("set_alloc", &DoubleArrayTrie::set_alloc)
+        .def("common_prefix_search", &DoubleArrayTrie::common_prefix_search);
 }
