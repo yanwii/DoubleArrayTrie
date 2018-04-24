@@ -7,21 +7,23 @@ from distutils.core import setup, Extension
 extension_mod = Extension("pydat.pydat", 
                         sources=['pydat/src/pydat.cpp', 'pydat/src/double_array_trie.cpp', 'pydat/src/utils.cpp'],
                         include_dirs=['pydat/src', 'pydat/include'],
-                        library_dirs=['pydat/include/boost'],
-                        runtime_library_dirs=['pydat/include/boost'],
-                        libraries=['pydat/include/lib/boost_python'],
+                        library_dirs=['pydat/include/lib'],
+                        runtime_library_dirs=['pydat'],
+                        libraries=['boost_python'],
                         extra_compile_args=['-std=c++11'])
 
 setup(name='pydat',
-      version='0.2.4',
+      version='0.2.5',
       keywords = ("Double Array Trie", "DAT"),  
       description = "DoubleArrayTrie(DAT) support prefix search & exact search & multiple pattern match for python implemented by c++",  
       long_description = "",  
-      license = "MIT Licence",  
+      license = "MIT Licence",
       url = "https://github.com/yanwii/DoubleArrayTrie",  
       author = "yanwii",  
       author_email = "yanwii@outlook.com",
       package_dir={'':'pydat'},
       packages=['pydat'],
+      include_package_data=True,
+      package_data={"pydat":["libboost_python.so.1.66.0"]},
       ext_modules=[extension_mod]
 )
