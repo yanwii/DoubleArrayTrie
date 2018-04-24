@@ -3,12 +3,13 @@
 #include <deque>
 #include <algorithm>
 #include <fstream>
-#include <functional>
-#include <codecvt>
+#include <boost/locale/encoding_utf.hpp>
 #include <locale>
 #include <string>
 #include "utils.h"
+
 using namespace std;
+using boost::locale::conv::utf_to_utf;
 
 vector<string> cut(const string &word, bool if_reverse=false){
     vector<string> segments;
@@ -46,14 +47,12 @@ vector<wstring> read_file(const string& file_name){
 }
 
 
-wstring string_to_wstring(const string& str){
-    using convert_typeX = std::codecvt_utf8<wchar_t>;
-    std::wstring_convert<convert_typeX, wchar_t> converterX;
-    return converterX.from_bytes(str);
+wstring string_to_wstring(const string& str)
+{
+    return utf_to_utf<wchar_t>(str.c_str(), str.c_str() + str.size());
 }
 
-string wstring_to_string(const wstring& wstr){
-    using convert_typeX = std::codecvt_utf8<wchar_t>;
-    std::wstring_convert<convert_typeX, wchar_t> converterX;
-    return converterX.to_bytes(wstr);
-}
+string wstring_to_string(const wstring& str)
+{
+    return utf_to_utf<char>(str.c_str(), str.c_str() + str.size());
+}  

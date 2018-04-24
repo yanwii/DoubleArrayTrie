@@ -278,10 +278,10 @@ int main(){
     wstring b = string_to_wstring(to_search);
 
     DoubleArrayTrie dat;
-    vector<wstring> company = read_file("test");
+    // vector<wstring> company = read_file("test");
     // vector<wstring> company = read_file("/home/ubuntu/SocialCredits/CompanyName/company_names.txt");
     // vector<wstring> company = {L"he" ,L"her", L"his", L"se", L"she", L"hers", L"sers"};
-    // vector<wstring> company = {L"n拉伯", L"阿拉伯人", L"阿拉伯"};
+    vector<wstring> company = {L"n拉伯", L"阿拉伯人", L"阿拉伯"};
     for(wstring wseg: company){
         dat.add_word(wseg);
     }
