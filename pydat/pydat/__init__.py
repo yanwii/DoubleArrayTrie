@@ -18,6 +18,9 @@ class Dat(object):
         result = self.dat_c.common_prefix_search(to_search)
         return self.format_output(result, to_search)
 
+    def load_file(self, file_name):
+        self.dat_c.load_file(file_name)
+
     def format_output(self, result, to_search):
         if isinstance(to_search, str):
             to_search = to_search.decode("utf-8")
