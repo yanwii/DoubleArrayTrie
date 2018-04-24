@@ -52,6 +52,7 @@ class DoubleArrayTrie{
     void add_word(const wstring&);
     void add_words(vector<string>);
     void add_words(vector<wstring>);
+    void load_file(const string&);
     
 };
 #endif
