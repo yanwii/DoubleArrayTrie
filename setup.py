@@ -23,4 +23,5 @@ setup(name='pydat',
       author_email = "yanwii@outlook.com",
       package_dir={'':'pydat'},
       packages=['pydat'],
-      ext_modules=[extension_mod])
+      ext_modules=[extension_mod]
+)
