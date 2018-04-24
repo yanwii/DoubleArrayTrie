@@ -12942,13 +12942,10 @@ pydat/include/boost/xpressive/traits/null_regex_traits.hpp
 pydat/include/boost/xpressive/traits/detail/c_ctype.hpp
 pydat/include/lib/libboost_python.so
 pydat/pydat/__init__.py
-pydat/src/double_array_trie
 pydat/src/double_array_trie.cpp
 pydat/src/double_array_trie.h
-pydat/src/double_array_trie.o
 pydat/src/makefile
 pydat/src/pydat.cpp
 pydat/src/test
 pydat/src/utils.cpp
 pydat/src/utils.h
-pydat/src/utils.o

@@ -267,21 +267,22 @@ vector<int> DoubleArrayTrie::prefix_search(const wstring& seg){
         }
         return index;
     }
-    index.push_back(seg.size());
+    int bp = base[p];
+    if (bp < 0){ index.push_back(seg.size()); }
     return index;
 }
 
 int main(){
     locale::global(locale(""));
     wcout.imbue(locale(""));
-    string to_search = "阿拉伯人河北捷成建设造价咨询有限公司哈去";
+    string to_search = "SMC（广州）气动元件有限公司龙华分公司";
     wstring b = string_to_wstring(to_search);
 
     DoubleArrayTrie dat;
     // vector<wstring> company = read_file("test");
     // vector<wstring> company = read_file("/home/ubuntu/SocialCredits/CompanyName/company_names.txt");
     // vector<wstring> company = {L"he" ,L"her", L"his", L"se", L"she", L"hers", L"sers"};
-    vector<wstring> company = {L"n拉伯", L"阿拉伯人", L"阿拉伯"};
+    vector<wstring> company = {L"SMC（广州）气动元件有限公司龙华分公司"};
     for(wstring wseg: company){
         dat.add_word(wseg);
     }
