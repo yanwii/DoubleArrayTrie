@@ -285,8 +285,9 @@ int main(){
     DoubleArrayTrie dat;
     // vector<wstring> company = read_file("test");
     // vector<wstring> company = read_file("/home/ubuntu/SocialCredits/CompanyName/company_names.txt");
-    // vector<wstring> company = {L"he" ,L"her", L"his", L"se", L"she", L"hers", L"sers"};
-    dat.load_file("test");
+    vector<wstring> company = {L"he" ,L"her", L"his", L"se", L"she", L"hers", L"sers"};
+    // dat.load_file("test");
+    dat.add_words(company);
     time_t start, stop;
     start = time(NULL);
     dat.make();
