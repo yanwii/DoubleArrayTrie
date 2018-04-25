@@ -309,8 +309,9 @@ void DoubleArrayTrie::load_file(const string& file_name){
 
 int main(){
     DoubleArrayTrie dat;
-
-    dat.load_file("test");
+    DoubleArrayTrie dat2;
+    vector<string> segments = {"石家庄"};
+    dat.add_words(segments);
     dat.make();
     vector<string> index_s = dat.search("石家庄福华房地产开发有限公司");
     for (string i:index_s){ cout << i << endl; }
