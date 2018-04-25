@@ -27,7 +27,7 @@ class DoubleArrayTrie{
     void init_storage();
     void reallocate_storage(int);
     void fetch_siblings(vector<Node>&, deque<vector<Node>>&);
-    void fetch_siblings(vector<wstring>&, deque<vector<Node>>&);
+    void fetch_siblings(deque<vector<Node>>&);
     int get_parent_state(const wstring&);
     vector<string> search(const wstring&);
 
