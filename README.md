@@ -1,6 +1,35 @@
-# DoubleArrayTrie
+## DoubleArrayTrie
 
 
+### C++
+
+    #include "double_array_trie.h"
+    
+    DoubleArrayTrie dat;
+    // load from file
+    dat.load_file("test.txt")
+    // or add word
+    dat.add_word("he")
+    dat.add_word("she")
+    // make base & check
+    dat.make()
+    // search
+    vector<string> index_s = dat.search("ushers")
+
+### Python
+
+    # install 
+    pip install pydat
+
+    # use
+    dat = pydat.Dat()
+    dat.load_file("test.txt")
+    dat.add_word("he")
+    dat.make()
+    dat.search("ushers")
+
+
+## About DAT
 ![](https://linux.thai.net/~thep/datrie/double.gif)
 
 **Definition**  
