@@ -1,5 +1,6 @@
 ## DoubleArrayTrie
 
+DoubleArrayTrie(DAT) support prefix search & exact search & multiple pattern match for python implemented by c++
 
 ### C++
 
