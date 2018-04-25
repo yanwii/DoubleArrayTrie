@@ -25,7 +25,7 @@ void    (DoubleArrayTrie::*add_word_entry)(string) = &DoubleArrayTrie::add_word;
 
 // BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS()
 BOOST_PYTHON_MODULE(pydat){
-    class_<vector<string>, shared_ptr<vector<string> >, boost::noncopyable>("string_vector")
+    class_<vector<string> >("string_vector")
         .def(vector_indexing_suite<vector<string> >());
     BP_REGISTER_SHARED_PTR_TO_PYTHON(vector<string>);
 
