@@ -11,18 +11,24 @@
 using namespace std;
 
 void DoubleArrayTrie::add_word(string seg){
+    /* Add word */
     wstring wseg = string_to_wstring(seg);
     num_chars += wseg.size();
     segments.push_back(wseg);
 }
 
 void DoubleArrayTrie::add_word(const wstring& wseg){
+    /* Add word */
     num_chars += wseg.size();
     segments.push_back(wseg);
 }
 
 
 void DoubleArrayTrie::add_words(vector<string> words){
+    /* 
+        Add words
+        First clear the vector, then convert string to wstring
+    */
     STL_clear(segments);
     for (int i=0; i<words.size(); i++){
         wstring wword = string_to_wstring(words[i]);
@@ -32,10 +38,11 @@ void DoubleArrayTrie::add_words(vector<string> words){
 
 void DoubleArrayTrie::add_words(vector<wstring> wwords){
     STL_clear(segments);
-    segments.assign(wwords.begin(), wwords.end());
+    segments.insert(segments.end(), wwords.begin(), wwords.end());
 }
 
 void DoubleArrayTrie::reallocate_storage(int new_size){
+    /* Dynamic allocate the storage */
     vector<int> pad(new_size - base.size() + 1);
     base.insert(base.end(), pad.begin(), pad.end());
     check.insert(check.end(), pad.begin(), pad.end());
@@ -43,6 +50,7 @@ void DoubleArrayTrie::reallocate_storage(int new_size){
 }
 
 void DoubleArrayTrie::init_storage(){
+    /* Initlize all variable */
     STL_clear(base);
     STL_clear(check);
     STL_clear(vocab);
@@ -55,17 +63,19 @@ void DoubleArrayTrie::init_storage(){
 }
 
 void DoubleArrayTrie::set_alloc(int size){
+    /* Pre set the allocation size */
     alloc_size = size;
 }
 
 void DoubleArrayTrie::make(){
+    /* Make the base & check then clear segemnts */
     // storage allocation
     init_storage();
 
     // first collection
     deque<vector<Node>> queue;
     
-    fetch_siblings(segments, queue);
+    fetch_siblings(queue);
     while (!queue.empty()){
         // loop the node while 
         // constructing the base & check.
@@ -125,7 +135,7 @@ int DoubleArrayTrie::get_parent_state(const wstring& seg){
     return p;
 }
 
-void DoubleArrayTrie::fetch_siblings(vector<wstring> &segments, deque<vector<Node>>& queue){
+void DoubleArrayTrie::fetch_siblings(deque<vector<Node>>& queue){
     siblings_def siblings;
     for (int i=0; i<segments.size(); i++){
         wstring seg = segments[i];
@@ -177,6 +187,11 @@ void DoubleArrayTrie::fetch_siblings(vector<Node>& siblings, deque<vector<Node>>
 
 
 int DoubleArrayTrie::find_begin(vector<Node>& siblings){
+    /*
+        Find a begin satisfy:
+        check[begin + s[i]] = base[begin + s[i]] == 0
+        where s[i] stand for all siblings
+    */
     int pos = siblings[0].code + 1 > max_index ? siblings[0].code + 1: max_index;
     bool is_found = true;
     int begin = 0;
@@ -203,11 +218,23 @@ int DoubleArrayTrie::find_begin(vector<Node>& siblings){
 }
 
 vector<string> DoubleArrayTrie::search(string to_search){
+    /* 
+        Multiple pattern search base on prefix search
+        e.g.:
+        words: she he 
+        to_search: ushers
+    */
     wstring to_searchw = string_to_wstring(to_search);
     return search(to_searchw);
 }
 
 vector<string> DoubleArrayTrie::search(const wstring& to_searchw){
+    /* 
+        Multiple pattern search base on prefix search
+        e.g.:
+        words: she he 
+        to_search: ushers
+    */
     vector<int> index;
     vector<string> match_result;
     
@@ -223,6 +250,7 @@ vector<string> DoubleArrayTrie::search(const wstring& to_searchw){
 }
 
 vector<string> DoubleArrayTrie::common_prefix_search(string to_search){
+    /* Perfix search entry*/
     vector<int> index = prefix_search(to_search);
     wstring seg = string_to_wstring(to_search);
     vector<string> match_result;
@@ -234,11 +262,13 @@ vector<string> DoubleArrayTrie::common_prefix_search(string to_search){
 }
 
 vector<int> DoubleArrayTrie::prefix_search(string& to_search){
+    /* Perfix search */
     wstring to_searchw = string_to_wstring(to_search);
     return prefix_search(to_searchw);
 }
 
 vector<int> DoubleArrayTrie::prefix_search(const wstring& seg){
+    /* Perfix search */
     wstring word = seg.substr(0, 1);
     int code = vocab[word];
     int p = code;
@@ -273,28 +303,16 @@ vector<int> DoubleArrayTrie::prefix_search(const wstring& seg){
 }
 
 void DoubleArrayTrie::load_file(const string& file_name){
+    /* Load segments from local file */
     segments = read_file(file_name);
 }
 
 int main(){
-    locale::global(locale(""));
-    wcout.imbue(locale(""));
-    string to_search = "SMC（广州）气动元件有限公司龙石家庄福华房地产开发有限公司华分公司";
-    wstring b = string_to_wstring(to_search);
-
     DoubleArrayTrie dat;
-    // vector<wstring> company = read_file("test");
-    // vector<wstring> company = read_file("/home/ubuntu/SocialCredits/CompanyName/company_names.txt");
-    vector<wstring> company = {L"he" ,L"her", L"his", L"se", L"she", L"hers", L"sers"};
-    // dat.load_file("test");
-    dat.add_words(company);
-    time_t start, stop;
-    start = time(NULL);
+    DoubleArrayTrie dat2;
+    vector<string> segments = {"石家庄"};
+    dat.add_words(segments);
     dat.make();
-    stop = time(NULL);
-    wcout << "cost: " << stop - start << endl; 
-    vector<string> result = dat.search(to_search);
-    for (string index: result) { wcout<< string_to_wstring(index) << endl;}
+    vector<string> index_s = dat.search("石家庄福华房地产开发有限公司");
+    for (string i:index_s){ cout << i << endl; }
 }
-
-
