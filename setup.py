@@ -14,7 +14,7 @@ extension_mod = Extension("pydat.pydat",
                         extra_compile_args=['-std=c++11'])
 
 setup(name='pydat',
-      version='0.3.7',
+      version='0.3.8',
       keywords = ("Double Array Trie", "DAT"),  
       description = "DoubleArrayTrie(DAT) support prefix search & exact search & multiple pattern match for python implemented by c++",  
       long_description = "",  
@@ -24,7 +24,6 @@ setup(name='pydat',
       author_email = "yanwii@outlook.com",
       package_dir={'':'pydat'},
       packages=['pydat'],
-      include_package_data=True,
-      package_data={"pydat":["libboost_python.so.1.58.0"]},
+      package_data={"pydat":["libboost_python.so.1.58.0", "libboost_python.so", "libboost_python-py27.so.1.58.0"]},
       ext_modules=[extension_mod]
 )
