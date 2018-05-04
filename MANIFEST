@@ -12942,6 +12942,7 @@ pydat/include/boost/xpressive/traits/null_regex_traits.hpp
 pydat/include/boost/xpressive/traits/detail/c_ctype.hpp
 pydat/pydat/__init__.py
 pydat/pydat/libboost_python-py27.so.1.58.0
+pydat/pydat/libboost_python.so
 pydat/pydat/libboost_python.so.1.58.0
 pydat/src/double_array_trie.cpp
 pydat/src/double_array_trie.h
