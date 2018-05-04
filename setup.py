@@ -14,7 +14,7 @@ extension_mod = Extension("pydat.pydat",
                         extra_compile_args=['-std=c++11'])
 
 setup(name='pydat',
-      version='0.4',
+      version='0.4.1',
       keywords = ("Double Array Trie", "DAT"),  
       description = "DoubleArrayTrie(DAT) support prefix search & exact search & multiple pattern match for python implemented by c++",  
       long_description = "",  
