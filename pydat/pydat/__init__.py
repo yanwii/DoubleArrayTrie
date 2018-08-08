@@ -1,25 +1,25 @@
-import pydat
+from . import pydat
 
 class Dat(object):
     def __init__(self):
-        self.dat_c = pydat.DoubleArrayTrie()
+        self.__dat_c = pydat.DoubleArrayTrie()
 
     def add_word(self, word):
-        self.dat_c.add_word(word)
+        self.__dat_c.add_word(word)
 
     def make(self):
-        self.dat_c.make()
+        self.__dat_c.make()
 
     def search(self, to_search):
-        result = self.dat_c.search(to_search)
+        result = self.__dat_c.search(to_search)
         return self.format_output(result, to_search)
 
     def prefix_search(self, to_search):
-        result = self.dat_c.common_prefix_search(to_search)
+        result = self.__dat_c.common_prefix_search(to_search)
         return self.format_output(result, to_search)
 
     def load_file(self, file_name):
-        self.dat_c.load_file(file_name)
+        self.__dat_c.load_file(file_name)
 
     def format_output(self, result, to_search):
         if isinstance(to_search, str):

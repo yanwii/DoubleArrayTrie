@@ -34,3 +34,4 @@
 .vscode
 dist
 test.py
+clean.sh
