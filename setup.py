@@ -30,7 +30,7 @@ with open("./README.rst") as fopen
       long_des = fopen.read()
 
 setup(name='pydat',
-      version='0.4.3',
+      version='0.4.7',
       keywords = ("Double Array Trie", "DAT"),  
       description = "DoubleArrayTrie(DAT) support prefix search & exact search & multiple pattern match for python implemented by c++",  
       long_description = long_des,  
