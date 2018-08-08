@@ -1,2 +1,2 @@
 graft pydat/src
-graft pydat/include
+graft README.rst
