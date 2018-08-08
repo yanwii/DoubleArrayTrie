@@ -12,18 +12,21 @@ class Dat(object):
 
     def search(self, to_search):
         result = self.__dat_c.search(to_search)
-        return self.format_output(result, to_search)
+        return self.__format_output(result, to_search)
 
     def prefix_search(self, to_search):
         result = self.__dat_c.common_prefix_search(to_search)
-        return self.format_output(result, to_search)
+        return self.__format_output(result, to_search)
 
     def load_file(self, file_name):
         self.__dat_c.load_file(file_name)
 
-    def format_output(self, result, to_search):
-        if isinstance(to_search, str):
-            to_search = to_search.decode("utf-8")
+    def __format_output(self, result, to_search):
+        try:
+            if isinstance(to_search, str):
+                to_search = to_search.decode("utf-8")
+        except Exception:
+            pass
         entities = []
         for index_s in result:
             try:
