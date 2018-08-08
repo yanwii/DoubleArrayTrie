@@ -30,7 +30,7 @@ DoubleArrayTrie(DAT) support prefix search & exact search & multiple pattern mat
     dat.search("ushers")
 
 
-## About DAT
+### About DAT
 ![](https://linux.thai.net/~thep/datrie/double.gif)
 
 **Definition**  
@@ -39,3 +39,9 @@ base[s] + c = t
 
 
 Reference: [An implementation of Double-Array Trie](https://linux.thai.net/~thep/datrie/datrie.html#Double)
+
+
+### Update Log
+
+#### 2018.08.08 
+- support python3
