@@ -3,17 +3,31 @@
 from distutils.core import setup, Extension
 import sys
 import site
+import shutil
 
 py_version = 2
+tag = sys.argv[1]
 
-package_data={"pydat":["libboost_python2.so.1.66.0"]},
+def copyfile(srcfile, file_l):
+      if tag == "sdist":
+            return
+      for tfile in file_l:
+            if tfile == srcfile:
+                  continue
+            shutil.copyfile("pydat/pydat/{}".format(srcfile), "pydat/pydat/{}".format(tfile))
+
+package_data = ["libboost_python2.so.1.66.0", "libboost_python3.so.1.66.0"]
 if sys.version.split(".")[0] == '2':
       py_version = 2
-      package_data = {"pydat":["libboost_python2.so.1.66.0"]}
-      libraries = ['boost_python']
+      ext_package_data = ["libboost_python.so.1.66.0", "libboost_python-2.so.1.66.0", "libboost_python2.so"]
+      package_data = {"pydat":ext_package_data + package_data}
+      copyfile("libboost_python2.so.1.66.0", ext_package_data)
+      libraries = ['boost_python2']
 elif sys.version.split(".")[0] == '3':
       py_version = 3
-      package_data = {"pydat":["libboost_python3.so.1.66.0"]}
+      ext_package_data = ["libboost_python.so.1.66.0", "libboost_python-3.so.1.66.0", "libboost_python3.so"]
+      package_data = {"pydat":package_data + ext_package_data }
+      copyfile("libboost_python3.so.1.66.0", ext_package_data)
       libraries = ['boost_python3']
 
 runtime_dirs = [i + "/pydat" for i in site.getsitepackages()]
@@ -21,7 +35,7 @@ runtime_dirs = [i + "/pydat" for i in site.getsitepackages()]
 # the c++ extension module
 extension_mod = Extension("pydat.pydat", 
                         sources=['pydat/src/pydat.cpp', 'pydat/src/double_array_trie.cpp', 'pydat/src/utils.cpp'],
-                        include_dirs=['pydat/src'],
+                        include_dirs=['pydat/src', "pydat/include"],
                         library_dirs=['pydat/pydat'],
                         runtime_library_dirs=runtime_dirs,
                         libraries=libraries,
@@ -35,7 +49,7 @@ except Exception:
       pass
 
 setup(name='pydat',
-      version='0.4.9',
+      version='0.5.2',
       keywords = ("Double Array Trie", "DAT"),  
       description = "DoubleArrayTrie(DAT) support prefix search & exact search & multiple pattern match for python implemented by c++",  
       long_description = long_des,  
