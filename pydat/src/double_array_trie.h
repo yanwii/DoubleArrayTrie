@@ -29,7 +29,10 @@ class DoubleArrayTrie{
     void fetch_siblings(vector<Node>&, deque<vector<Node>>&);
     void fetch_siblings(deque<vector<Node>>&);
     int get_parent_state(const wstring&);
+    vector<string> greedy_search(const wstring&);
     vector<string> search(const wstring&);
+    vector<int> maxmum_search(string&);
+    vector<int> maxmum_search(const wstring&);
 
     unordered_map<wstring, int> vocab;
     int num_chars = 0;
@@ -47,6 +50,7 @@ class DoubleArrayTrie{
     void make();
     void set_alloc(int);
     vector<string> common_prefix_search(string);
+    vector<string> greedy_search(string);
     vector<string> search(string);
     void add_word(string);
     void add_word(const wstring&);

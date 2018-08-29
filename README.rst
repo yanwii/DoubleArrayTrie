@@ -2,6 +2,26 @@
 
 DoubleArrayTrie(DAT) support prefix search & exact search & multiple pattern match for python implemented by c++
 
+### What's different
+
+Now greedy search is supported:  
+function `search` only returns the longest subsequence  
+function `greedy_search` returns all subsequences  
+
+    
+    word: she sher shers he
+    to_search: shers
+    
+    search: 
+    {'entities': [{'begin': 0, 'end': 5, 'entity': 'shers'}]}
+    
+    greedy_search: 
+    {'entities': [{'begin': 0, 'end': 3, 'entity': 'she'}, {'begin': 0, 'end': 4, 'entity': 'sher'}, {'begin': 0, 'end': 5, 'entity': 'shers'}, {'begin': 1, 'end': 3, 'entity': 'he'}]}
+
+
+
+
+
 ### C++
 
     #include "double_array_trie.h"
@@ -16,6 +36,8 @@ DoubleArrayTrie(DAT) support prefix search & exact search & multiple pattern mat
     dat.make()
     // search
     vector<string> index_s = dat.search("ushers")
+    // greedy_search
+    vector<string> index_s = dat.search("ushers")
 
 ### Python
 
@@ -27,10 +49,13 @@ DoubleArrayTrie(DAT) support prefix search & exact search & multiple pattern mat
     dat.load_file("test.txt")
     dat.add_word("he")
     dat.make()
+    # search
     dat.search("ushers")
+    # greedy_search
+    dat.greedy_search("ushers")
 
 
-## About DAT
+### About DAT
 ![](https://linux.thai.net/~thep/datrie/double.gif)
 
 **Definition**  
@@ -39,3 +64,12 @@ base[s] + c = t
 
 
 Reference: [An implementation of Double-Array Trie](https://linux.thai.net/~thep/datrie/datrie.html#Double)
+
+
+### Update Log
+
+#### 2018.08.29
+- support greedy_search
+
+#### 2018.08.08 
+- support python3

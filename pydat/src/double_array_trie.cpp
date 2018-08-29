@@ -223,6 +223,7 @@ vector<string> DoubleArrayTrie::search(string to_search){
         e.g.:
         words: she he 
         to_search: ushers
+        retrun: she
     */
     wstring to_searchw = string_to_wstring(to_search);
     return search(to_searchw);
@@ -234,6 +235,50 @@ vector<string> DoubleArrayTrie::search(const wstring& to_searchw){
         e.g.:
         words: she he 
         to_search: ushers
+        retrun: she
+    */
+    vector<int> index;
+    vector<string> match_result;
+    
+    int end_index = to_searchw.size();
+    int i = 0;
+    int max_j = 0;
+    while(i < to_searchw.size()){
+        index = maxmum_search(to_searchw.substr(i, end_index));
+        for(int j : index) {
+            string index_s = to_string(i) + "_" + to_string(j + i);
+            match_result.push_back(index_s);
+            max_j = max_j < i+j ? i+j : max_j;
+        }
+        if (index.size() == 0) {
+            i++;
+        } else {
+            i = max_j;
+        }
+    }
+    return match_result; 
+
+}
+
+vector<string> DoubleArrayTrie::greedy_search(string to_search){
+    /* 
+        Multiple pattern greedy search base on prefix search
+        e.g.:
+        words: she he 
+        to_search: ushers
+        retrun: she he
+    */
+    wstring to_searchw = string_to_wstring(to_search);
+    return greedy_search(to_searchw);
+}
+
+vector<string> DoubleArrayTrie::greedy_search(const wstring& to_searchw){
+    /* 
+        Multiple pattern search base on prefix search
+        e.g.:
+        words: she he 
+        to_search: ushers
+        retrun: she he
     */
     vector<int> index;
     vector<string> match_result;
@@ -247,6 +292,56 @@ vector<string> DoubleArrayTrie::search(const wstring& to_searchw){
         }
     }
     return match_result; 
+}
+
+
+vector<int> DoubleArrayTrie::maxmum_search(string& to_search){
+    wstring to_searchw = string_to_wstring(to_search);
+    return maxmum_search(to_searchw);
+}
+
+vector<int> DoubleArrayTrie::maxmum_search(const wstring& seg){
+    /* 
+        maxmun search
+        word: she sher
+        to_search: shers
+        return: sher 
+    */
+    wstring word = seg.substr(0, 1);
+    int code = vocab[word];
+    int p = code;
+    int b = 0;
+    vector<int> index;
+    int last_index = -1;
+    if (code==0 || check[code] != 0) { return index; }
+    
+    if (seg.size() == 1){
+        if (base[code] == 0 && check[code] == 0){
+            index.push_back(0);
+            return index;
+        }
+    }
+    for(int i=1; i<seg.size(); i++){
+        word = seg[i];
+        code = vocab[word];
+
+        b = abs(base[p]) + code;
+        int bp = base[p];
+        if (bp < 0) {
+            // index.push_back(i);
+            last_index = i;
+        }
+        if (check[b] == p && code != 0){
+            p = b;
+            continue;
+        }
+
+        if(last_index > -1) { index.push_back(i); }
+        return index;
+    }
+    int bp = base[p];
+    if (bp < 0){ index.push_back(seg.size()); }
+    return index;
 }
 
 vector<string> DoubleArrayTrie::common_prefix_search(string to_search){
@@ -309,10 +404,9 @@ void DoubleArrayTrie::load_file(const string& file_name){
 
 int main(){
     DoubleArrayTrie dat;
-    DoubleArrayTrie dat2;
-    vector<string> segments = {"石家庄"};
+    vector<string> segments = {"阿里", "阿里巴巴"};
     dat.add_words(segments);
     dat.make();
-    vector<string> index_s = dat.search("石家庄福华房地产开发有限公司");
+    vector<string> index_s = dat.search("阿里巴巴的故乡");
     for (string i:index_s){ cout << i << endl; }
 }

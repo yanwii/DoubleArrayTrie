@@ -10,6 +10,10 @@ class Dat(object):
     def make(self):
         self.__dat_c.make()
 
+    def greedy_search(self, to_search):
+        result = self.__dat_c.greedy_search(to_search)
+        return self.__format_output(result, to_search)
+
     def search(self, to_search):
         result = self.__dat_c.search(to_search)
         return self.__format_output(result, to_search)
