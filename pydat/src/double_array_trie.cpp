@@ -243,8 +243,10 @@ vector<string> DoubleArrayTrie::search(const wstring& to_searchw){
     int end_index = to_searchw.size();
     int i = 0;
     int max_j = 0;
+    
     while(i < to_searchw.size()){
         index = maxmum_search(to_searchw.substr(i, end_index));
+        int size = index.size();
         for(int j : index) {
             string index_s = to_string(i) + "_" + to_string(j + i);
             match_result.push_back(index_s);
@@ -284,9 +286,11 @@ vector<string> DoubleArrayTrie::greedy_search(const wstring& to_searchw){
     vector<string> match_result;
     
     int end_index = to_searchw.size();
-    for (int i=0; i<to_searchw.size() - 1; i++){
+    for (int i=0; i < to_searchw.size(); i++){
         index = prefix_search(to_searchw.substr(i, end_index));
+        int size = index.size();
         for(int j : index) {
+            if ( j== 0 ){ continue; }
             string index_s = to_string(i) + "_" + to_string(j + i);
             match_result.push_back(index_s);
         }
@@ -314,10 +318,10 @@ vector<int> DoubleArrayTrie::maxmum_search(const wstring& seg){
     vector<int> index;
     int last_index = -1;
     if (code==0 || check[code] != 0) { return index; }
-    
+
     if (seg.size() == 1){
-        if (base[code] == 0 && check[code] == 0){
-            index.push_back(0);
+        if (base[code] == -1 && check[code] == 0){
+            index.push_back(1);
             return index;
         }
     }
@@ -372,8 +376,8 @@ vector<int> DoubleArrayTrie::prefix_search(const wstring& seg){
     if (code==0 || check[code] != 0) { return index; }
     
     if (seg.size() == 1){
-        if (base[code] == 0 && check[code] == 0){
-            index.push_back(0);
+        if (base[code] == -1 && check[code] == 0){
+            index.push_back(1);
             return index;
         }
     }
@@ -404,9 +408,12 @@ void DoubleArrayTrie::load_file(const string& file_name){
 
 int main(){
     DoubleArrayTrie dat;
-    vector<string> segments = {"he", "she", "sher"};
-    dat.add_words(segments);
+    // vector<string> segments = {"he", "she", "sher"};
+    // dat.add_words(segments);
+    dat.load_file("stop_words");
+    dat.add_word("能");
+    dat.add_word("能不能");
     dat.make();
-    vector<string> index_s = dat.search("usher");
+    vector<string> index_s = dat.search("能不能");
     for (string i:index_s){ cout << i << endl; }
 }
