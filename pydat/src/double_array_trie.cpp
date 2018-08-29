@@ -404,9 +404,9 @@ void DoubleArrayTrie::load_file(const string& file_name){
 
 int main(){
     DoubleArrayTrie dat;
-    vector<string> segments = {"阿里", "阿里巴巴"};
+    vector<string> segments = {"he", "she", "sher"};
     dat.add_words(segments);
     dat.make();
-    vector<string> index_s = dat.search("阿里巴巴的故乡");
+    vector<string> index_s = dat.search("usher");
     for (string i:index_s){ cout << i << endl; }
 }
