@@ -100,19 +100,28 @@ void DoubleArrayTrie::make(){
         wstring seg = segments[i];
         wstring word = wstring(1, seg[0]);
         int code = vocab[word];
-        check[code] = 0;
         int p = code;
         int b = 0;
         int bp = 0;
+        int failure_point = 0;
         for (int j=1; j<seg.size(); j++){
             word = wstring(1, seg[j]);
             code = vocab[word];
             b = abs(base[p]) + code;
             p = b;
+            failure_point = find_failure(code, failure_point);
+            if (failure_point != 0 ) { failure[p] = failure_point; }
         }
         bp = base[p];
-        if (bp > 0) { base[p] = -base[p];}
-        else if (bp == 0) { base[p] = -1;} 
+        if (bp > 0) { base[p] = -base[p]; }
+        else if (bp == 0) { base[p] = -1; } 
+    }
+    for(auto it=failure.begin(); it!=failure.end(); it++){
+        cout << it->first << " " << it->second << endl;
+    }
+
+    for(auto t=vocab.begin(); t!=vocab.end(); t++){
+        cout << wstring_to_string(t->first) << " " << t->second << endl;
     }
     STL_clear(segments);
 }
@@ -121,6 +130,21 @@ template<class T>
 void DoubleArrayTrie::STL_clear(T& obj){
     T empty;
     empty.swap(obj);
+}
+
+int DoubleArrayTrie::find_failure(int code, int parent_failure){
+    int failure = 0;
+    if (parent_failure == 0){
+        if (check[code] == -1){
+            failure = code;
+        } 
+    } else {
+        int b = base[parent_failure] + code;
+        if (check[b] == parent_failure) {
+            failure = b;
+        }
+    }
+    return failure;
 }
 
 int DoubleArrayTrie::get_parent_state(const wstring& seg){
@@ -144,7 +168,7 @@ void DoubleArrayTrie::fetch_siblings(deque<vector<Node>>& queue){
         int pcode = vocab[pword];
         // reallocate storage
         if (pcode >= alloc_size) { reallocate_storage(pcode); }
-        check[pcode] = 1;
+        check[pcode] = -1;
 
         if (seg.size() == 1) { continue; }
         Node node;
@@ -317,7 +341,7 @@ vector<int> DoubleArrayTrie::maxmum_search(const wstring& seg){
     int b = 0;
     vector<int> index;
     int last_index = -1;
-    if (code==0 || check[code] != 0) { return index; }
+    if (code==0 || check[code] != -1) { return index; }
 
     if (seg.size() == 1){
         if (base[code] == -1 && check[code] == 0){
@@ -338,7 +362,7 @@ vector<int> DoubleArrayTrie::maxmum_search(const wstring& seg){
         if (check[b] == p && code != 0){
             p = b;
             continue;
-        }
+        } 
 
         if(last_index > -1) { index.push_back(i); }
         return index;
@@ -376,7 +400,7 @@ vector<int> DoubleArrayTrie::prefix_search(const wstring& seg){
     if (code==0 || check[code] != 0) { return index; }
     
     if (seg.size() == 1){
-        if (base[code] == -1 && check[code] == 0){
+        if (base[code] == -1 && check[code] == -1){
             index.push_back(1);
             return index;
         }
@@ -401,6 +425,43 @@ vector<int> DoubleArrayTrie::prefix_search(const wstring& seg){
     return index;
 }
 
+vector<string> DoubleArrayTrie::new_search(string to_search){
+    wstring to_searchw = string_to_wstring(to_search);
+    return new_search(to_searchw);
+}
+
+vector<string> DoubleArrayTrie::new_search(const wstring& to_searchw){
+    wstring word = L"";
+    int begin = 0;
+    vector<string> index;
+    int b = 0;
+    int p = 0;
+    int code = 0;
+    for (int i=0; i<to_searchw.size(); i++){
+        word = to_searchw[i];
+        code = vocab[word];
+        cout << wstring_to_string(word) << endl;
+        b = abs(base[p]) + code;
+        if (i==0 && base[code] == -1) { index.push_back(to_string(begin) + "_" + to_string(i + 1));}
+
+        if (check[b] == p && code != 0){
+            p = b;
+        } else if ( check[b] == -1 && p == code){
+            p = b;
+        } else if ( failure[p] != 0){
+            p = failure[p];
+        } else {
+            begin = i;
+            p = code;
+        }
+        cout << base[p] << endl;
+        if (base[p] == -1){ index.push_back(to_string(begin) + "_" + to_string(i + 1)); }
+    }
+    return index;
+}
+
+
+
 void DoubleArrayTrie::load_file(const string& file_name){
     /* Load segments from local file */
     segments = read_file(file_name);
@@ -408,12 +469,17 @@ void DoubleArrayTrie::load_file(const string& file_name){
 
 int main(){
     DoubleArrayTrie dat;
-    // vector<string> segments = {"he", "she", "sher"};
-    // dat.add_words(segments);
-    dat.load_file("stop_words");
-    dat.add_word("能");
-    dat.add_word("能不能");
+    vector<string> segments = {"he", "she", "sher"};
+    dat.add_words(segments);
+    dat.add_word("福州三吉混凝土有限公司");
+    dat.add_word("有一群人");
     dat.make();
-    vector<string> index_s = dat.search("能不能");
+
+
+    string to_search = "有一群人ushers福州三吉混凝土有限公司";
+    vector<string> index_s = dat.new_search(to_search);
+    for (string i:index_s){ cout << i << endl; }
+
+    index_s = dat.search(to_search);
     for (string i:index_s){ cout << i << endl; }
 }
