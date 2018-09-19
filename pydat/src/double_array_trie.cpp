@@ -133,7 +133,7 @@ int DoubleArrayTrie::find_failure(int code, int parent_failure){
             failure = code;
         } 
     } else {
-        int b = base[parent_failure] + code;
+        int b = abs(base[parent_failure]) + code;
         if (check[b] == parent_failure) {
             failure = b;
         }

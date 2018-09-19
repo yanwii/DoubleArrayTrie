@@ -49,7 +49,7 @@ except Exception:
       pass
 
 setup(name='pydat',
-      version='0.6.3',
+      version='0.6.4',
       keywords = ("Double Array Trie", "DAT"),  
       description = "DoubleArrayTrie(DAT) support prefix search & exact search & multiple pattern match for python implemented by c++",  
       long_description = long_des,  
