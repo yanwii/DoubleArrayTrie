@@ -21,7 +21,7 @@ namespace bp = boost::python;
 } while (0)
 
 vector<string>  (DoubleArrayTrie::*search_entry)(string) = &DoubleArrayTrie::search;
-vector<string>  (DoubleArrayTrie::*greedy_search_entry)(string) = &DoubleArrayTrie::greedy_search;
+vector<string>  (DoubleArrayTrie::*maximum_search_entry)(string) = &DoubleArrayTrie::maximum_search;
 void    (DoubleArrayTrie::*add_word_entry)(string) = &DoubleArrayTrie::add_word;
 
 // BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS()
@@ -33,7 +33,7 @@ BOOST_PYTHON_MODULE(pydat){
     class_<DoubleArrayTrie >("DoubleArrayTrie")
         .def("search", search_entry)
         .def("add_word", add_word_entry)
-        .def("greedy_search", greedy_search_entry)
+        .def("maximum_search", maximum_search_entry)
         .def("make", &DoubleArrayTrie::make)
         .def("set_alloc", &DoubleArrayTrie::set_alloc)
         .def("common_prefix_search", &DoubleArrayTrie::common_prefix_search)

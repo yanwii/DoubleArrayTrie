@@ -5,8 +5,8 @@ DoubleArrayTrie(DAT) support prefix search & exact search & multiple pattern mat
 ### What's different
 
 Now greedy search is supported:  
-function `search` only returns the longest subsequence  
-function `greedy_search` returns all subsequences  
+function `search` only returns the longest subsequence(greedy search)
+function `maximum_search` returns all subsequences  
 
     
     word: she sher shers he
@@ -15,10 +15,8 @@ function `greedy_search` returns all subsequences
     search: 
     {'entities': [{'begin': 0, 'end': 5, 'entity': 'shers'}]}
     
-    greedy_search: 
+    maximum_search: 
     {'entities': [{'begin': 0, 'end': 3, 'entity': 'she'}, {'begin': 0, 'end': 4, 'entity': 'sher'}, {'begin': 0, 'end': 5, 'entity': 'shers'}, {'begin': 1, 'end': 3, 'entity': 'he'}]}
-
-
 
 
 
@@ -34,10 +32,10 @@ function `greedy_search` returns all subsequences
     dat.add_word("she")
     // make base & check
     dat.make()
-    // search
-    vector<string> index_s = dat.search("ushers")
     // greedy_search
     vector<string> index_s = dat.search("ushers")
+    // maximum_search
+    vector<string> index_s = dat.maximum_search("ushers")
 
 ### Python
 
@@ -52,7 +50,7 @@ function `greedy_search` returns all subsequences
     # search
     dat.search("ushers")
     # greedy_search
-    dat.greedy_search("ushers")
+    dat.maximum_search("ushers")
 
 
 ### About DAT
@@ -67,6 +65,9 @@ Reference: [An implementation of Double-Array Trie](https://linux.thai.net/~thep
 
 
 ### Update Log
+
+#### 2018.09.19
+- optimize the algorithm
 
 #### 2018.08.29
 - support greedy_search

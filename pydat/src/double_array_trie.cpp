@@ -116,13 +116,6 @@ void DoubleArrayTrie::make(){
         if (bp > 0) { base[p] = -base[p]; }
         else if (bp == 0) { base[p] = -1; } 
     }
-    for(auto it=failure.begin(); it!=failure.end(); it++){
-        cout << it->first << " " << it->second << endl;
-    }
-
-    for(auto t=vocab.begin(); t!=vocab.end(); t++){
-        cout << wstring_to_string(t->first) << " " << t->second << endl;
-    }
     STL_clear(segments);
 }
 
@@ -133,6 +126,7 @@ void DoubleArrayTrie::STL_clear(T& obj){
 }
 
 int DoubleArrayTrie::find_failure(int code, int parent_failure){
+    /* To find out the failure path of the node */
     int failure = 0;
     if (parent_failure == 0){
         if (check[code] == -1){
@@ -212,9 +206,9 @@ void DoubleArrayTrie::fetch_siblings(vector<Node>& siblings, deque<vector<Node>>
 
 int DoubleArrayTrie::find_begin(vector<Node>& siblings){
     /*
-        Find a begin satisfy:
+        Find a begin satisfies:
         check[begin + s[i]] = base[begin + s[i]] == 0
-        where s[i] stand for all siblings
+        where s[i] stands for all siblings
     */
     int pos = siblings[0].code + 1 > max_index ? siblings[0].code + 1: max_index;
     bool is_found = true;
@@ -239,137 +233,6 @@ int DoubleArrayTrie::find_begin(vector<Node>& siblings){
         }
     }
 
-}
-
-vector<string> DoubleArrayTrie::search(string to_search){
-    /* 
-        Multiple pattern search base on prefix search
-        e.g.:
-        words: she he 
-        to_search: ushers
-        retrun: she
-    */
-    wstring to_searchw = string_to_wstring(to_search);
-    return search(to_searchw);
-}
-
-vector<string> DoubleArrayTrie::search(const wstring& to_searchw){
-    /* 
-        Multiple pattern search base on prefix search
-        e.g.:
-        words: she he 
-        to_search: ushers
-        retrun: she
-    */
-    vector<int> index;
-    vector<string> match_result;
-    
-    int end_index = to_searchw.size();
-    int i = 0;
-    int max_j = 0;
-    
-    while(i < to_searchw.size()){
-        index = maxmum_search(to_searchw.substr(i, end_index));
-        int size = index.size();
-        for(int j : index) {
-            string index_s = to_string(i) + "_" + to_string(j + i);
-            match_result.push_back(index_s);
-            max_j = max_j < i+j ? i+j : max_j;
-        }
-        if (index.size() == 0) {
-            i++;
-        } else {
-            i = max_j;
-        }
-    }
-    return match_result; 
-
-}
-
-vector<string> DoubleArrayTrie::greedy_search(string to_search){
-    /* 
-        Multiple pattern greedy search base on prefix search
-        e.g.:
-        words: she he 
-        to_search: ushers
-        retrun: she he
-    */
-    wstring to_searchw = string_to_wstring(to_search);
-    return greedy_search(to_searchw);
-}
-
-vector<string> DoubleArrayTrie::greedy_search(const wstring& to_searchw){
-    /* 
-        Multiple pattern search base on prefix search
-        e.g.:
-        words: she he 
-        to_search: ushers
-        retrun: she he
-    */
-    vector<int> index;
-    vector<string> match_result;
-    
-    int end_index = to_searchw.size();
-    for (int i=0; i < to_searchw.size(); i++){
-        index = prefix_search(to_searchw.substr(i, end_index));
-        int size = index.size();
-        for(int j : index) {
-            if ( j== 0 ){ continue; }
-            string index_s = to_string(i) + "_" + to_string(j + i);
-            match_result.push_back(index_s);
-        }
-    }
-    return match_result; 
-}
-
-
-vector<int> DoubleArrayTrie::maxmum_search(string& to_search){
-    wstring to_searchw = string_to_wstring(to_search);
-    return maxmum_search(to_searchw);
-}
-
-vector<int> DoubleArrayTrie::maxmum_search(const wstring& seg){
-    /* 
-        maxmun search
-        word: she sher
-        to_search: shers
-        return: sher 
-    */
-    wstring word = seg.substr(0, 1);
-    int code = vocab[word];
-    int p = code;
-    int b = 0;
-    vector<int> index;
-    int last_index = -1;
-    if (code==0 || check[code] != -1) { return index; }
-
-    if (seg.size() == 1){
-        if (base[code] == -1 && check[code] == 0){
-            index.push_back(1);
-            return index;
-        }
-    }
-    for(int i=1; i<seg.size(); i++){
-        word = seg[i];
-        code = vocab[word];
-
-        b = abs(base[p]) + code;
-        int bp = base[p];
-        if (bp < 0) {
-            // index.push_back(i);
-            last_index = i;
-        }
-        if (check[b] == p && code != 0){
-            p = b;
-            continue;
-        } 
-
-        if(last_index > -1) { index.push_back(i); }
-        return index;
-    }
-    int bp = base[p];
-    if (bp < 0){ index.push_back(seg.size()); }
-    return index;
 }
 
 vector<string> DoubleArrayTrie::common_prefix_search(string to_search){
@@ -425,12 +288,12 @@ vector<int> DoubleArrayTrie::prefix_search(const wstring& seg){
     return index;
 }
 
-vector<string> DoubleArrayTrie::new_search(string to_search){
+vector<string> DoubleArrayTrie::search(string to_search){
     wstring to_searchw = string_to_wstring(to_search);
-    return new_search(to_searchw);
+    return search(to_searchw);
 }
 
-vector<string> DoubleArrayTrie::new_search(const wstring& to_searchw){
+vector<string> DoubleArrayTrie::search(const wstring& to_searchw){
     wstring word = L"";
     int begin = 0;
     vector<string> index;
@@ -440,26 +303,57 @@ vector<string> DoubleArrayTrie::new_search(const wstring& to_searchw){
     for (int i=0; i<to_searchw.size(); i++){
         word = to_searchw[i];
         code = vocab[word];
-        cout << wstring_to_string(word) << endl;
         b = abs(base[p]) + code;
-        if (i==0 && base[code] == -1) { index.push_back(to_string(begin) + "_" + to_string(i + 1));}
 
-        if (check[b] == p && code != 0){
+        if ( check[b] == p && code != 0 ){
             p = b;
-        } else if ( check[b] == -1 && p == code){
+        } else if ( check[b] == -1 && p == code ){
             p = b;
-        } else if ( failure[p] != 0){
+        } else if ( failure[p] != 0 ){
+            p = failure[p];
+        } else {
+            if ( base[p] < 0 ){ index.push_back(to_string(begin) + "_" + to_string(i)); }
+            begin = i;
+            p = code;
+        }
+    }
+    if (base[p] < 0){
+        index.push_back(to_string(begin) + "_" + to_string(to_searchw.size()));
+    }
+    return index;
+}
+
+vector<string> DoubleArrayTrie::maximum_search(string to_search){
+    wstring to_searchw = string_to_wstring(to_search);
+    return maximum_search(to_searchw);
+}
+
+vector<string> DoubleArrayTrie::maximum_search(const wstring& to_searchw){
+    wstring word = L"";
+    int begin = 0;
+    vector<string> index;
+    int b = 0;
+    int p = 0;
+    int code = 0;
+    for (int i=0; i<to_searchw.size(); i++){
+        word = to_searchw[i];
+        code = vocab[word];
+        b = abs(base[p]) + code;
+
+        if ( check[b] == p && code != 0 ){
+            p = b;
+        } else if ( check[b] == -1 && p == code ){
+            p = b;
+        } else if ( failure[p] != 0 ){
             p = failure[p];
         } else {
             begin = i;
             p = code;
         }
-        cout << base[p] << endl;
-        if (base[p] == -1){ index.push_back(to_string(begin) + "_" + to_string(i + 1)); }
+        if ( base[p] < 0 ){ index.push_back(to_string(begin) + "_" + to_string(i + 1)); }
     }
     return index;
 }
-
 
 
 void DoubleArrayTrie::load_file(const string& file_name){
@@ -470,16 +364,15 @@ void DoubleArrayTrie::load_file(const string& file_name){
 int main(){
     DoubleArrayTrie dat;
     vector<string> segments = {"he", "she", "sher"};
-    dat.add_words(segments);
     dat.add_word("福州三吉混凝土有限公司");
-    dat.add_word("有一群人");
+    dat.add_word("福州三吉");
     dat.make();
+    
+    string to_search = "福州三吉混凝土有限公司";
 
-
-    string to_search = "有一群人ushers福州三吉混凝土有限公司";
-    vector<string> index_s = dat.new_search(to_search);
+    vector<string> index_s = dat.search(to_search);
     for (string i:index_s){ cout << i << endl; }
-
-    index_s = dat.search(to_search);
+    cout << "----------------" << endl;
+    index_s = dat.maximum_search(to_search);
     for (string i:index_s){ cout << i << endl; }
 }

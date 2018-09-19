@@ -21,7 +21,6 @@ class DoubleArrayTrie{
     private:
     vector<int> prefix_search(string&);
     vector<int> prefix_search(const wstring&);
-    vector<string> new_search(const wstring&);
     int find_begin(vector<Node>&);
     template<class T>
     void STL_clear(T&);
@@ -30,10 +29,8 @@ class DoubleArrayTrie{
     void fetch_siblings(vector<Node>&, deque<vector<Node>>&);
     void fetch_siblings(deque<vector<Node>>&);
     int get_parent_state(const wstring&);
-    vector<string> greedy_search(const wstring&);
     vector<string> search(const wstring&);
-    vector<int> maxmum_search(string&);
-    vector<int> maxmum_search(const wstring&);
+    vector<string> maximum_search(const wstring&);
     int find_failure(int, int);
 
     vector<wstring> segments;
@@ -55,9 +52,8 @@ class DoubleArrayTrie{
     void make();
     void set_alloc(int);
     vector<string> common_prefix_search(string);
-    vector<string> greedy_search(string);
     vector<string> search(string);
-    vector<string> new_search(string);
+    vector<string> maximum_search(string);
     
     void add_word(string);
     void add_word(const wstring&);
