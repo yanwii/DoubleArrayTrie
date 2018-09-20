@@ -24,6 +24,7 @@ class DoubleArrayTrie{
     int find_begin(vector<Node>&);
     template<class T>
     void STL_clear(T&);
+    void check_output(int, int, vector<string>&);
     void init_storage();
     void reallocate_storage(int);
     void fetch_siblings(vector<Node>&, deque<vector<Node>>&);
@@ -33,10 +34,10 @@ class DoubleArrayTrie{
     vector<string> maximum_search(const wstring&);
     int find_failure(int, int);
 
-    vector<wstring> segments;
     vector<int> base;
     vector<int> check;
-
+    
+    unordered_map<int, int> output;
     unordered_map<wstring, int> vocab;
     unordered_map<int, int> failure;
 
@@ -60,6 +61,6 @@ class DoubleArrayTrie{
     void add_words(vector<string>);
     void add_words(vector<wstring>);
     void load_file(const string&);
-    
+    vector<wstring> segments;
 };
 #endif

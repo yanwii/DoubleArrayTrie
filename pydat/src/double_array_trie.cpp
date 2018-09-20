@@ -110,13 +110,14 @@ void DoubleArrayTrie::make(){
             b = abs(base[p]) + code;
             p = b;
             failure_point = find_failure(code, failure_point);
-            if (failure_point != 0 ) { failure[p] = failure_point; }
+            if ( failure_point != 0 ) { failure[p] = failure_point; }
         }
         bp = base[p];
         if (bp > 0) { base[p] = -base[p]; }
-        else if (bp == 0) { base[p] = -1; } 
+        else if (bp == 0) { base[p] = -1; }
+        output[p] = i;
     }
-    STL_clear(segments);
+    // STL_clear(segments);
 }
 
 template<class T>
@@ -293,9 +294,17 @@ vector<string> DoubleArrayTrie::search(string to_search){
     return search(to_searchw);
 }
 
+void DoubleArrayTrie::check_output(int p, int end, vector<string>& index){
+    if ( base[p] < 0 ){
+        wstring out = segments[output[p]];
+        int begin = end - out.size();
+        index.push_back(to_string(begin) + "_" + to_string(end));
+        // cout << "out " <<  wstring_to_string(segments[output[p]]) << "     " << index[index.size() - 1] << endl;
+    }
+}
+
 vector<string> DoubleArrayTrie::search(const wstring& to_searchw){
     wstring word = L"";
-    int begin = 0;
     vector<string> index;
     int b = 0;
     int p = 0;
@@ -305,21 +314,27 @@ vector<string> DoubleArrayTrie::search(const wstring& to_searchw){
         code = vocab[word];
         b = abs(base[p]) + code;
 
-        if ( check[b] == p && code != 0 ){
+        if ( code == 0 ){
+            check_output(p, i, index);
+            p = 0;
+        } else if ( check[b] == p ){
             p = b;
-        } else if ( check[b] == -1 && p == code ){
+        } else if ( check[b] == -1 && p == 0){
             p = b;
         } else if ( failure[p] != 0 ){
+            check_output(p, i, index);
             p = failure[p];
+            i --;
+        } else if ( p == 0 && check[b] != -1){
+            check_output(p, i, index);
+            p = 0;
         } else {
-            if ( base[p] < 0 ){ index.push_back(to_string(begin) + "_" + to_string(i)); }
-            begin = i;
-            p = code;
+            check_output(p, i, index);
+            p = 0;
+            i --;
         }
     }
-    if (base[p] < 0){
-        index.push_back(to_string(begin) + "_" + to_string(to_searchw.size()));
-    }
+    check_output(p, to_searchw.size(), index);
     return index;
 }
 
@@ -330,7 +345,6 @@ vector<string> DoubleArrayTrie::maximum_search(string to_search){
 
 vector<string> DoubleArrayTrie::maximum_search(const wstring& to_searchw){
     wstring word = L"";
-    int begin = 0;
     vector<string> index;
     int b = 0;
     int p = 0;
@@ -339,22 +353,25 @@ vector<string> DoubleArrayTrie::maximum_search(const wstring& to_searchw){
         word = to_searchw[i];
         code = vocab[word];
         b = abs(base[p]) + code;
-
-        if ( check[b] == p && code != 0 ){
+        if ( code == 0){
+            p = 0;
+        } else if ( check[b] == p ){
             p = b;
-        } else if ( check[b] == -1 && p == code ){
+        } else if ( check[b] == -1 && p == 0 ){
             p = b;
-        } else if ( failure[p] != 0 ){
+        } else if ( failure[p] != 0){
             p = failure[p];
+            i --;
+        } else if ( p == 0 && check[b] != -1){
+            p = 0;
         } else {
-            begin = i;
-            p = code;
+            p = 0;
+            i --;
         }
-        if ( base[p] < 0 ){ index.push_back(to_string(begin) + "_" + to_string(i + 1)); }
+        check_output(p, i + 1, index);
     }
     return index;
 }
-
 
 void DoubleArrayTrie::load_file(const string& file_name){
     /* Load segments from local file */
@@ -363,16 +380,24 @@ void DoubleArrayTrie::load_file(const string& file_name){
 
 int main(){
     DoubleArrayTrie dat;
-    vector<string> segments = {"he", "she", "sher"};
-    dat.add_word("福州三吉混凝土有限公司");
-    dat.add_word("福州三吉");
-    dat.make();
-    
-    string to_search = "福州三吉混凝土有限公司";
+    // dat.load_file("test.txt");
+    dat.load_file("/home/ubuntu/SocialCredits/CompanyName/short");
+    dat.add_word("派特尔");
+    dat.add_word("海天味业");
 
+    string to_search = "";
+    dat.make();
+    cout << dat.segments.size() << endl;
+    for(wstring seg: dat.segments){
+        to_search += wstring_to_string(seg);
+    }
+
+    // to_search = "派特尔海天味业";
     vector<string> index_s = dat.search(to_search);
-    for (string i:index_s){ cout << i << endl; }
+    cout << index_s.size() << endl;
+    // for (string i:index_s){ cout << i << endl; }
     cout << "----------------" << endl;
     index_s = dat.maximum_search(to_search);
-    for (string i:index_s){ cout << i << endl; }
+    cout << index_s.size() << endl;
+    // for (string i:index_s){ cout << i << endl; }
 }
